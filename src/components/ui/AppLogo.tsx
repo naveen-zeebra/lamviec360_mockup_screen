@@ -7,7 +7,8 @@ import AppImage from './AppImage';
 interface AppLogoProps {
   src?: string; // Image source (optional)
   iconName?: string; // Icon name when no image
-  size?: number; // Size for icon/image
+  size?: number; // Height for icon/image (also used as width when `width` is omitted, i.e. square)
+  width?: number; // Explicit width — set this for non-square logos to avoid distorting the aspect ratio
   className?: string; // Additional classes
   onClick?: () => void; // Click handler
 }
@@ -16,6 +17,7 @@ const AppLogo = memo(function AppLogo({
   src = '/assets/images/app_logo.png',
   iconName = 'SparklesIcon',
   size = 64,
+  width,
   className = '',
   onClick,
 }: AppLogoProps) {
@@ -33,8 +35,8 @@ const AppLogo = memo(function AppLogo({
       {src ? (
         <AppImage
           src={src}
-          alt="Logo" 
-          width={size}
+          alt="Logo"
+          width={width ?? size}
           height={size}
           className="flex-shrink-0"
           priority={true}

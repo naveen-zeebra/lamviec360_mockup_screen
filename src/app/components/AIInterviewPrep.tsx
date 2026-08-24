@@ -1,32 +1,28 @@
 'use client';
 import React from 'react';
 import { Sparkles, CheckCircle, Lock } from 'lucide-react';
+import { TranslationKeys } from '@/lib/i18n';
 
 interface AIInterviewPrepProps {
   onOpenModal: () => void;
+  t: TranslationKeys;
 }
 
-const features = [
-  'Câu hỏi kỹ thuật theo vị trí',
-  'Câu hỏi hành vi (STAR method)',
-  'Luyện tập theo ngành nghề',
-  'Chuẩn bị cá nhân hóa',
-];
-
-export default function AIInterviewPrep({ onOpenModal }: AIInterviewPrepProps) {
+export default function AIInterviewPrep({ onOpenModal, t }: AIInterviewPrepProps) {
+  const features = t.interviewPreparation.features;
   return (
     <section className="section-padding coming-soon-bg" aria-labelledby="ai-interview-heading">
       <div className="max-w-screen-2xl mx-auto px-4 lg:px-8 xl:px-10">
         <div className="max-w-2xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-yellow-400/20 text-yellow-300 text-xs font-semibold uppercase tracking-widest px-4 py-2 rounded-pill mb-6">
             <Sparkles size={13} />
-            Sắp Ra Mắt
+            {t.interviewPreparation.comingSoon}
           </div>
           <h2 id="ai-interview-heading" className="text-3xl lg:text-4xl font-bold text-white mb-4">
-            AI Interview Preparation
+            {t.interviewPreparation.title}
           </h2>
           <p className="text-base text-white/70 mb-8 leading-relaxed">
-            Chuẩn bị cho buổi phỏng vấn tiếp theo với luyện tập được hỗ trợ bởi AI, được cá nhân hóa theo vị trí và đơn ứng tuyển của bạn.
+            {t.interviewPreparation.cardDescription}
           </p>
           <div className="grid grid-cols-2 gap-3 mb-8 max-w-sm mx-auto">
             {features.map((feature) => (
@@ -42,7 +38,7 @@ export default function AIInterviewPrep({ onOpenModal }: AIInterviewPrepProps) {
             aria-label="AI Interview Preparation - Coming Soon. Click to learn more."
           >
             <Lock size={16} />
-            Sắp Ra Mắt — Tìm Hiểu Thêm
+            {t.interviewPreparation.comingSoon} — {t.common.learnMore}
           </button>
         </div>
       </div>

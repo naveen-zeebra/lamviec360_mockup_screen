@@ -5,10 +5,11 @@ import { usePathname } from 'next/navigation';
 import AppLogo from '@/components/ui/AppLogo';
 import { LayoutDashboard, Search, Star, Bookmark, FileText, Bell, Mic, User, Settings, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import Icon from '@/components/ui/AppIcon';
+import { TranslationKeys } from '@/lib/i18n';
 
 
 interface PortalSidebarProps {
-  t: { navigation: Record<string, string> };
+  t: TranslationKeys;
   unreadCount?: number;
 }
 
@@ -49,7 +50,11 @@ export default function PortalSidebar({ t, unreadCount = 0 }: PortalSidebarProps
       {/* Logo */}
       <div className="flex items-center h-16 px-3 border-b border-sidebar-border flex-shrink-0">
         <Link href="/job-seeker-dashboard" className="flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md" aria-label="LamViec360 Dashboard">
-          <AppLogo src="/assets/images/lamviec-logo-none-1787565498437.png" size={32} />
+          <AppLogo
+            src="/assets/images/lamviec-logo-none-1787565498437.png"
+            size={isCollapsed ? 11 : 22}
+            width={isCollapsed ? 38 : 76}
+          />
           {!isCollapsed && (
             <span className="font-bold text-base text-foreground truncate">LamViec360</span>
           )}
@@ -59,7 +64,7 @@ export default function PortalSidebar({ t, unreadCount = 0 }: PortalSidebarProps
       {/* Nav Items */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5" aria-label="Main navigation">
         {!isCollapsed && (
-          <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Menu</p>
+          <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t.portalSidebar.menu}</p>
         )}
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -81,7 +86,7 @@ export default function PortalSidebar({ t, unreadCount = 0 }: PortalSidebarProps
                   <span className="flex-1 truncate">{item.label}</span>
                   {item.badge === 'soon' ? (
                     <span className="text-xs bg-warning-bg text-warning-foreground font-medium px-1.5 py-0.5 rounded-pill">
-                      Soon
+                      {t.portalSidebar.soon}
                     </span>
                   ) : item.badge ? (
                     <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-pill tab-number ${
@@ -104,7 +109,7 @@ export default function PortalSidebar({ t, unreadCount = 0 }: PortalSidebarProps
         <div className="border-t border-border my-2" />
 
         {!isCollapsed && (
-          <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Account</p>
+          <p className="px-3 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{t.portalSidebar.account}</p>
         )}
         {bottomItems.map((item) => {
           const Icon = item.icon;
@@ -132,7 +137,7 @@ export default function PortalSidebar({ t, unreadCount = 0 }: PortalSidebarProps
             className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
           >
             <ExternalLink size={14} />
-            <span>Company Site</span>
+            <span>{t.navigation.companySite}</span>
           </a>
         )}
         <button
@@ -143,7 +148,7 @@ export default function PortalSidebar({ t, unreadCount = 0 }: PortalSidebarProps
           {isCollapsed ? <ChevronRight size={16} /> : (
             <>
               <ChevronLeft size={16} />
-              <span>Collapse</span>
+              <span>{t.portalSidebar.collapse}</span>
             </>
           )}
         </button>

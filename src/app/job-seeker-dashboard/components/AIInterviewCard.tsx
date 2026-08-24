@@ -1,23 +1,25 @@
 'use client';
 import React from 'react';
 import { Sparkles, Lock } from 'lucide-react';
+import { TranslationKeys } from '@/lib/i18n';
 
 interface AIInterviewCardProps {
   onOpenModal: () => void;
+  t: TranslationKeys;
 }
 
-export default function AIInterviewCard({ onOpenModal }: AIInterviewCardProps) {
+export default function AIInterviewCard({ onOpenModal, t }: AIInterviewCardProps) {
   return (
     <div className="coming-soon-bg rounded-xl p-5 text-white relative overflow-hidden">
       <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" aria-hidden="true" />
       <div className="relative">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles size={15} className="text-yellow-400" />
-          <span className="text-xs font-bold text-yellow-400 uppercase tracking-wider">Sắp Ra Mắt</span>
+          <span className="text-xs font-bold text-yellow-400 uppercase tracking-wider">{t.interviewPreparation.comingSoon}</span>
         </div>
-        <h3 className="font-bold text-white text-sm mb-1.5">AI Interview Preparation</h3>
+        <h3 className="font-bold text-white text-sm mb-1.5">{t.interviewPreparation.title}</h3>
         <p className="text-xs text-white/70 leading-relaxed mb-4">
-          Luyện tập phỏng vấn với AI được cá nhân hóa theo vị trí của bạn.
+          {t.dashboard.aiInterviewDescriptionShort}
         </p>
         <button
           onClick={onOpenModal}
@@ -25,7 +27,7 @@ export default function AIInterviewCard({ onOpenModal }: AIInterviewCardProps) {
           aria-label="AI Interview Preparation - Coming Soon"
         >
           <Lock size={13} />
-          Tìm Hiểu Thêm
+          {t.common.learnMore}
         </button>
       </div>
     </div>

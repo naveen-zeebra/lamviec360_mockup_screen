@@ -26,20 +26,20 @@ export default function LandingPageClient() {
       <PublicNavbar language={language} onLanguageChange={changeLanguage} t={t} activePage="/" />
       <main id="main-content">
         <HeroSection t={t} />
-        <TrustStats />
-        <JobCategories />
+        <TrustStats t={t} />
+        <JobCategories t={t} />
         <FeaturedJobs t={t} />
-        <PopularLocations />
-        <HowItWorks />
-        <JobSeekerBenefits />
-        <RecommendedPreview />
-        <ApplicationTrackingPreview />
-        <CareerResources />
-        <AIInterviewPrep onOpenModal={() => setIsComingSoonOpen(true)} />
-        <FinalCTA />
+        <PopularLocations t={t} />
+        <HowItWorks t={t} />
+        <JobSeekerBenefits t={t} />
+        <RecommendedPreview t={t} />
+        <ApplicationTrackingPreview t={t} />
+        <CareerResources t={t} />
+        <AIInterviewPrep onOpenModal={() => setIsComingSoonOpen(true)} t={t} />
+        <FinalCTA t={t} />
       </main>
-      <PublicFooter />
-      <ComingSoonModal isOpen={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} />
+      <PublicFooter t={t} />
+      <ComingSoonModal isOpen={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} t={t} />
     </div>
   );
 }

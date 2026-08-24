@@ -2,56 +2,57 @@
 import React from 'react';
 import { Star, FileText, Calendar, Bookmark, TrendingUp, TrendingDown } from 'lucide-react';
 import Icon from '@/components/ui/AppIcon';
+import { TranslationKeys } from '@/lib/i18n';
 
 
-const kpiData = [
-  {
-    id: 'kpi-recommended',
-    label: 'Việc Làm Đề Xuất',
-    value: '47',
-    change: '+12 tuần này',
-    trend: 'up',
-    icon: Star,
-    color: 'text-yellow-600',
-    bg: 'bg-yellow-50',
-    borderColor: 'border-yellow-200',
-  },
-  {
-    id: 'kpi-applications',
-    label: 'Đơn Ứng Tuyển',
-    value: '12',
-    change: '+3 tháng này',
-    trend: 'up',
-    icon: FileText,
-    color: 'text-primary',
-    bg: 'bg-info-bg',
-    borderColor: 'border-blue-200',
-  },
-  {
-    id: 'kpi-interviews',
-    label: 'Phỏng Vấn',
-    value: '3',
-    change: '1 sắp tới',
-    trend: 'up',
-    icon: Calendar,
-    color: 'text-success',
-    bg: 'bg-success-bg',
-    borderColor: 'border-green-200',
-  },
-  {
-    id: 'kpi-saved',
-    label: 'Việc Đã Lưu',
-    value: '28',
-    change: '-2 hết hạn',
-    trend: 'down',
-    icon: Bookmark,
-    color: 'text-purple-600',
-    bg: 'bg-purple-50',
-    borderColor: 'border-purple-200',
-  },
-];
+export default function KPICards({ t }: { t: TranslationKeys }) {
+  const kpiData = [
+    {
+      id: 'kpi-recommended',
+      label: t.kpiCards.recommendedJobs,
+      value: '47',
+      change: t.kpiCards.changeRecommended,
+      trend: 'up',
+      icon: Star,
+      color: 'text-yellow-600',
+      bg: 'bg-yellow-50',
+      borderColor: 'border-yellow-200',
+    },
+    {
+      id: 'kpi-applications',
+      label: t.kpiCards.applications,
+      value: '12',
+      change: t.kpiCards.changeApplications,
+      trend: 'up',
+      icon: FileText,
+      color: 'text-primary',
+      bg: 'bg-info-bg',
+      borderColor: 'border-blue-200',
+    },
+    {
+      id: 'kpi-interviews',
+      label: t.kpiCards.interviews,
+      value: '3',
+      change: t.kpiCards.changeInterviews,
+      trend: 'up',
+      icon: Calendar,
+      color: 'text-success',
+      bg: 'bg-success-bg',
+      borderColor: 'border-green-200',
+    },
+    {
+      id: 'kpi-saved',
+      label: t.kpiCards.savedJobs,
+      value: '28',
+      change: t.kpiCards.changeSaved,
+      trend: 'down',
+      icon: Bookmark,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+      borderColor: 'border-purple-200',
+    },
+  ];
 
-export default function KPICards() {
   return (
     <div className="grid grid-cols-2 xl:grid-cols-4 gap-4" role="region" aria-label="Key metrics">
       {kpiData?.map((kpi) => {

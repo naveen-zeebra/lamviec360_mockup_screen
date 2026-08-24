@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { Search, MapPin, Grid3X3 } from 'lucide-react';
+import { TranslationKeys } from '@/lib/i18n';
 
 interface JobSearchBarProps {
   keyword: string;
@@ -9,16 +10,17 @@ interface JobSearchBarProps {
   onKeywordChange: (v: string) => void;
   onLocationChange: (v: string) => void;
   onCategoryChange: (v: string) => void;
+  t: TranslationKeys;
 }
 
-export default function JobSearchBar({ keyword, location, category, onKeywordChange, onLocationChange, onCategoryChange }: JobSearchBarProps) {
+export default function JobSearchBar({ keyword, location, category, onKeywordChange, onLocationChange, onCategoryChange, t }: JobSearchBarProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-2">
       <div className="flex-1 flex items-center gap-2 px-3 py-2 border border-border rounded-lg bg-background focus-within:ring-2 focus-within:ring-ring focus-within:border-primary transition-all">
         <Search size={16} className="text-muted-foreground flex-shrink-0" />
         <input
           type="text"
-          placeholder="Tên việc làm, kỹ năng hoặc từ khóa"
+          placeholder={t.jobs.jobTitle}
           value={keyword}
           onChange={(e) => onKeywordChange(e.target.value)}
           className="flex-1 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
@@ -29,7 +31,7 @@ export default function JobSearchBar({ keyword, location, category, onKeywordCha
         <MapPin size={16} className="text-muted-foreground flex-shrink-0" />
         <input
           type="text"
-          placeholder="Địa điểm"
+          placeholder={t.jobs.location}
           value={location}
           onChange={(e) => onLocationChange(e.target.value)}
           className="flex-1 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
@@ -44,13 +46,15 @@ export default function JobSearchBar({ keyword, location, category, onKeywordCha
           className="flex-1 text-sm bg-transparent text-foreground focus:outline-none cursor-pointer"
           aria-label="Job Category"
         >
-          <option value="">Tất cả ngành nghề</option>
-          <option value="Software Development">Software Development</option>
-          <option value="Design">Design</option>
-          <option value="Marketing">Marketing</option>
-          <option value="Finance">Finance</option>
-          <option value="Human Resources">Human Resources</option>
-          <option value="Engineering">Engineering</option>
+          <option value="">{t.jobCategories.allCategories}</option>
+          <option value="Software Development">{t.jobCategories.softwareDevelopment}</option>
+          <option value="Design">{t.jobCategories.design}</option>
+          <option value="Marketing">{t.jobCategories.marketing}</option>
+          <option value="Sales">{t.jobCategories.sales}</option>
+          <option value="Finance">{t.jobCategories.finance}</option>
+          <option value="Human Resources">{t.jobCategories.humanResources}</option>
+          <option value="Engineering">{t.jobCategories.engineering}</option>
+          <option value="Customer Support">{t.jobCategories.customerSupport}</option>
         </select>
       </div>
     </div>

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { TranslationKeys } from '@/lib/i18n';
 
 interface RegisterFormData {
   fullName: string;
@@ -13,12 +14,12 @@ interface RegisterFormData {
 }
 
 interface RegisterFormProps {
-  t: { authentication: Record<string, string> };
+  t: TranslationKeys;
   onSwitchToLogin: () => void;
   onSuccess: (email: string) => void;
 }
 
-function getPasswordStrength(password: string): { score: number; label: string; color: string } {
+function getPasswordStrength(password: string, t: TranslationKeys): { score: number; label: string; color: string } {
   if (!password) return { score: 0, label: '', color: '' };
   let score = 0;
   if (password.length >= 8) score++;
@@ -26,10 +27,10 @@ function getPasswordStrength(password: string): { score: number; label: string; 
   if (/[0-9]/.test(password)) score++;
   if (/[^A-Za-z0-9]/.test(password)) score++;
   const levels = [
-    { score: 1, label: 'Yếu', color: 'bg-error' },
-    { score: 2, label: 'Trung bình', color: 'bg-warning' },
-    { score: 3, label: 'Tốt', color: 'bg-blue-500' },
-    { score: 4, label: 'Mạnh', color: 'bg-success' },
+    { score: 1, label: t.authForms.strengthWeak, color: 'bg-error' },
+    { score: 2, label: t.authForms.strengthMedium, color: 'bg-warning' },
+    { score: 3, label: t.authForms.strengthGood, color: 'bg-blue-500' },
+    { score: 4, label: t.authForms.strengthStrong, color: 'bg-success' },
   ];
   return levels[score - 1] || { score: 0, label: '', color: '' };
 }
@@ -43,13 +44,13 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
   const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormData>();
   const password = watch('password', '');
 
-  const strength = getPasswordStrength(watchedPassword);
+  const strength = getPasswordStrength(watchedPassword, t);
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     // Backend integration: POST /api/auth/register with user data
     await new Promise(r => setTimeout(r, 1400));
-    toast.success('Tài khoản đã được tạo! Vui lòng xác minh email.');
+    toast.success(t.authForms.registerSuccessToast);
     onSuccess(data.email);
     setIsLoading(false);
   };
@@ -58,7 +59,7 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
     <div className="animate-fade-in">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-foreground mb-1">{t.authentication.createAccount}</h1>
-        <p className="text-sm text-muted-foreground">Tạo tài khoản miễn phí và bắt đầu tìm kiếm cơ hội</p>
+        <p className="text-sm text-muted-foreground">{t.authForms.registerSubtitle}</p>
       </div>
 
       <button
@@ -83,7 +84,7 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
           <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-background px-3 text-xs text-muted-foreground">hoặc đăng ký bằng email</span>
+          <span className="bg-background px-3 text-xs text-muted-foreground">{t.authForms.orSignUpWithEmail}</span>
         </div>
       </div>
 
@@ -97,11 +98,11 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
             id="reg-fullname"
             type="text"
             autoComplete="name"
-            placeholder="Nguyễn Văn A"
+            placeholder={t.authForms.fullNamePlaceholder}
             className={`w-full px-4 py-3 border rounded-xl text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all ${errors.fullName ? 'border-error' : 'border-border'}`}
             aria-invalid={!!errors.fullName}
             aria-describedby={errors.fullName ? 'reg-name-error' : undefined}
-            {...register('fullName', { required: 'Vui lòng nhập họ và tên', minLength: { value: 2, message: 'Tên phải có ít nhất 2 ký tự' } })}
+            {...register('fullName', { required: t.authForms.errorFullNameRequired, minLength: { value: 2, message: t.authForms.errorFullNameMinLength } })}
           />
           {errors.fullName && <p id="reg-name-error" role="alert" className="text-xs text-error mt-1.5">{errors.fullName.message}</p>}
         </div>
@@ -115,13 +116,13 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
             id="reg-email"
             type="email"
             autoComplete="email"
-            placeholder="ten@email.com"
+            placeholder={t.authForms.emailPlaceholder}
             className={`w-full px-4 py-3 border rounded-xl text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all ${errors.email ? 'border-error' : 'border-border'}`}
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? 'reg-email-error' : undefined}
             {...register('email', {
-              required: 'Vui lòng nhập địa chỉ email',
-              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Địa chỉ email không hợp lệ' },
+              required: t.authForms.errorEmailRequired,
+              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: t.authForms.errorEmailInvalid },
             })}
           />
           {errors.email && <p id="reg-email-error" role="alert" className="text-xs text-error mt-1.5">{errors.email.message}</p>}
@@ -137,13 +138,13 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
               id="reg-password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              placeholder="Tối thiểu 8 ký tự"
+              placeholder={t.forgotPassword.newPasswordPlaceholder}
               className={`w-full px-4 py-3 pr-11 border rounded-xl text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all ${errors.password ? 'border-error' : 'border-border'}`}
               aria-invalid={!!errors.password}
               aria-describedby="reg-password-strength"
               {...register('password', {
-                required: 'Vui lòng nhập mật khẩu',
-                minLength: { value: 8, message: 'Mật khẩu phải có ít nhất 8 ký tự' },
+                required: t.authForms.errorPasswordRequired,
+                minLength: { value: 8, message: t.authForms.errorPasswordMinLength },
                 onChange: (e) => setWatchedPassword(e.target.value),
               })}
             />
@@ -151,7 +152,7 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-0.5"
-              aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              aria-label={showPassword ? t.authForms.hidePasswordAria : t.authForms.showPasswordAria}
             >
               {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>
@@ -167,7 +168,7 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
                   />
                 ))}
               </div>
-              {strength.label && <p className="text-xs text-muted-foreground">Độ mạnh: <span className="font-medium text-foreground">{strength.label}</span></p>}
+              {strength.label && <p className="text-xs text-muted-foreground">{t.authForms.strengthLabel} <span className="font-medium text-foreground">{strength.label}</span></p>}
             </div>
           )}
         </div>
@@ -182,20 +183,20 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
               id="reg-confirm"
               type={showConfirm ? 'text' : 'password'}
               autoComplete="new-password"
-              placeholder="Nhập lại mật khẩu"
+              placeholder={t.forgotPassword.confirmPasswordPlaceholder}
               className={`w-full px-4 py-3 pr-11 border rounded-xl text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all ${errors.confirmPassword ? 'border-error' : 'border-border'}`}
               aria-invalid={!!errors.confirmPassword}
               aria-describedby={errors.confirmPassword ? 'reg-confirm-error' : undefined}
               {...register('confirmPassword', {
-                required: 'Vui lòng xác nhận mật khẩu',
-                validate: (v) => v === password || 'Mật khẩu không khớp',
+                required: t.forgotPassword.errorConfirmRequired,
+                validate: (v) => v === password || t.forgotPassword.errorPasswordMismatch,
               })}
             />
             <button
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-0.5"
-              aria-label={showConfirm ? 'Ẩn xác nhận mật khẩu' : 'Hiện xác nhận mật khẩu'}
+              aria-label={showConfirm ? t.authForms.hideConfirmAria : t.authForms.showConfirmAria}
             >
               {showConfirm ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>
@@ -211,7 +212,7 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
               className="w-4 h-4 rounded border-border text-primary focus:ring-ring focus:ring-2 cursor-pointer mt-0.5"
               aria-invalid={!!errors.agreeToTerms}
               aria-describedby={errors.agreeToTerms ? 'terms-error' : undefined}
-              {...register('agreeToTerms', { required: 'Bạn phải đồng ý với điều khoản sử dụng' })}
+              {...register('agreeToTerms', { required: t.authForms.errorTermsRequired })}
             />
             <span className="text-sm text-muted-foreground leading-relaxed">
               {t.authentication.termsAgreement}{' '}
@@ -236,7 +237,7 @@ export default function RegisterForm({ t, onSwitchToLogin, onSuccess }: Register
           {isLoading ? (
             <>
               <Loader2 size={17} className="animate-spin" />
-              Đang tạo tài khoản...
+              {t.authForms.creatingAccount}
             </>
           ) : (
             t.authentication.register

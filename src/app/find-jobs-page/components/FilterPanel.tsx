@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { TranslationKeys } from '@/lib/i18n';
 
 interface FilterState {
   workMode: string[];
@@ -12,10 +13,10 @@ interface FilterState {
 interface FilterPanelProps {
   activeFilters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
+  t: TranslationKeys;
 }
 
 const workModes = ['Remote', 'Hybrid', 'On-site'];
-const experienceLevels = ['Dưới 1 năm', '1-2 năm', '2-4 năm', '3-5 năm', '5+ năm'];
 const employmentTypes = ['Full-time', 'Part-time', 'Contract', 'Freelance'];
 
 function FilterGroup({ title, children, defaultOpen = true }: { title: string; children: React.ReactNode; defaultOpen?: boolean }) {
@@ -35,7 +36,9 @@ function FilterGroup({ title, children, defaultOpen = true }: { title: string; c
   );
 }
 
-export default function FilterPanel({ activeFilters, onFiltersChange }: FilterPanelProps) {
+export default function FilterPanel({ activeFilters, onFiltersChange, t }: FilterPanelProps) {
+  const experienceLevels = t.filterPanel.experienceLevels;
+
   const toggleFilter = (type: 'workMode' | 'experience' | 'employmentType', value: string) => {
     const current = activeFilters[type];
     const updated = current.includes(value)
@@ -47,16 +50,16 @@ export default function FilterPanel({ activeFilters, onFiltersChange }: FilterPa
   return (
     <div className="bg-card border border-border rounded-xl p-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-bold text-foreground text-sm">Bộ Lọc</h2>
+        <h2 className="font-bold text-foreground text-sm">{t.filterPanel.title}</h2>
         <button
           onClick={() => onFiltersChange({ workMode: [], experience: [], salaryMin: 0, employmentType: [] })}
           className="text-xs text-error hover:text-error-foreground font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
         >
-          Xóa tất cả
+          {t.filterPanel.clearAll}
         </button>
       </div>
 
-      <FilterGroup title="Hình thức làm việc">
+      <FilterGroup title={t.filterPanel.workMode}>
         <div className="space-y-2">
           {workModes.map((mode) => (
             <label key={`filter-workmode-${mode}`} className="flex items-center gap-2.5 cursor-pointer group">
@@ -73,7 +76,7 @@ export default function FilterPanel({ activeFilters, onFiltersChange }: FilterPa
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Kinh nghiệm">
+      <FilterGroup title={t.filterPanel.experience}>
         <div className="space-y-2">
           {experienceLevels.map((level) => (
             <label key={`filter-exp-${level}`} className="flex items-center gap-2.5 cursor-pointer group">
@@ -90,7 +93,7 @@ export default function FilterPanel({ activeFilters, onFiltersChange }: FilterPa
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Loại hợp đồng">
+      <FilterGroup title={t.filterPanel.contractType}>
         <div className="space-y-2">
           {employmentTypes.map((type) => (
             <label key={`filter-emptype-${type}`} className="flex items-center gap-2.5 cursor-pointer group">
@@ -107,7 +110,7 @@ export default function FilterPanel({ activeFilters, onFiltersChange }: FilterPa
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Mức lương (triệu VNĐ)" defaultOpen={false}>
+      <FilterGroup title={t.filterPanel.salaryRange} defaultOpen={false}>
         <div className="space-y-3">
           <input
             type="range"
@@ -120,7 +123,7 @@ export default function FilterPanel({ activeFilters, onFiltersChange }: FilterPa
             aria-label={`Minimum salary: ${activeFilters.salaryMin} million VND`}
           />
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Tối thiểu: <span className="font-semibold text-foreground tab-number">{activeFilters.salaryMin}tr</span></span>
+            <span>{t.filterPanel.minimum} <span className="font-semibold text-foreground tab-number">{activeFilters.salaryMin}tr</span></span>
             <span>100tr+</span>
           </div>
         </div>

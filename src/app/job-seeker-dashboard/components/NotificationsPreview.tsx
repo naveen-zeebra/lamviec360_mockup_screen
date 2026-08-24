@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Bell, Briefcase, FileText, Calendar, Settings, ArrowRight } from 'lucide-react';
 import { mockNotifications } from '@/lib/mockData';
 import Icon from '@/components/ui/AppIcon';
+import { TranslationKeys } from '@/lib/i18n';
 
 
 const typeIcons = {
@@ -13,7 +14,7 @@ const typeIcons = {
   system: Settings,
 };
 
-export default function NotificationsPreview() {
+export default function NotificationsPreview({ t }: { t: TranslationKeys }) {
   const recent = mockNotifications?.slice(0, 3);
   const unreadCount = recent?.filter(n => !n?.isRead)?.length;
 
@@ -21,7 +22,7 @@ export default function NotificationsPreview() {
     <div className="bg-card border border-border rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <h2 className="font-bold text-foreground text-sm">Thông Báo</h2>
+          <h2 className="font-bold text-foreground text-sm">{t.notifications.title}</h2>
           {unreadCount > 0 && (
             <span className="w-5 h-5 bg-error text-white text-xs font-bold rounded-full flex items-center justify-center tab-number">
               {unreadCount}
@@ -29,7 +30,7 @@ export default function NotificationsPreview() {
           )}
         </div>
         <Link href="#notifications" className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded">
-          Tất cả <ArrowRight size={12} />
+          {t.dashboard.notificationsAllLower} <ArrowRight size={12} />
         </Link>
       </div>
       <div className="space-y-2.5">

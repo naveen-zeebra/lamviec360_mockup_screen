@@ -6,11 +6,12 @@ import LanguageSelector from './LanguageSelector';
 import { Language } from '@/lib/i18n';
 import { Bell, ChevronDown, User, Settings, HelpCircle, LogOut, ExternalLink } from 'lucide-react';
 import { mockNotifications } from '@/lib/mockData';
+import { TranslationKeys } from '@/lib/i18n';
 
 interface PortalTopbarProps {
   language: Language;
   onLanguageChange: (lang: Language) => void;
-  t: { navigation: Record<string, string>; authentication: Record<string, string> };
+  t: TranslationKeys;
   sidebarCollapsed?: boolean;
 }
 
@@ -42,7 +43,7 @@ export default function PortalTopbar({ language, onLanguageChange, t, sidebarCol
       <div className="flex items-center justify-between w-full px-4 lg:px-6">
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground hidden md:block">
-            Xin chào, <span className="font-semibold text-foreground">Nguyễn Minh Anh</span> 👋
+            {t.portalTopbar.greetingPrefix} <span className="font-semibold text-foreground">Nguyễn Minh Anh</span> 👋
           </span>
         </div>
 
@@ -55,7 +56,7 @@ export default function PortalTopbar({ language, onLanguageChange, t, sidebarCol
             className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium border border-border rounded-md text-muted-foreground hover:text-foreground hover:border-foreground/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Go to Company Site"
           >
-            Company Site
+            {t.navigation.companySite}
             <ExternalLink size={13} />
           </a>
 
@@ -81,8 +82,8 @@ export default function PortalTopbar({ language, onLanguageChange, t, sidebarCol
             {isNotifOpen && (
               <div className="absolute right-0 top-full mt-1.5 w-80 bg-card border border-border rounded-xl shadow-modal z-50 animate-fade-in">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                  <h3 className="font-semibold text-foreground text-sm">Thông báo</h3>
-                  <button className="text-xs text-primary hover:text-primary-dark font-medium">Đọc tất cả</button>
+                  <h3 className="font-semibold text-foreground text-sm">{t.portalTopbar.notifications}</h3>
+                  <button className="text-xs text-primary hover:text-primary-dark font-medium">{t.portalTopbar.markAllRead}</button>
                 </div>
                 <div className="max-h-80 overflow-y-auto">
                   {mockNotifications.slice(0, 4).map((notif) => (
@@ -105,7 +106,7 @@ export default function PortalTopbar({ language, onLanguageChange, t, sidebarCol
                 </div>
                 <div className="px-4 py-2.5 border-t border-border">
                   <Link href="#notifications" className="text-sm text-primary hover:text-primary-dark font-medium" onClick={() => setIsNotifOpen(false)}>
-                    Xem tất cả thông báo
+                    {t.portalTopbar.viewAllNotifications}
                   </Link>
                 </div>
               </div>
@@ -135,7 +136,7 @@ export default function PortalTopbar({ language, onLanguageChange, t, sidebarCol
                 {[
                   { label: t.navigation.myProfile, icon: User, href: '#profile' },
                   { label: t.navigation.settings, icon: Settings, href: '#settings' },
-                  { label: 'Help & Support', icon: HelpCircle, href: '#help' },
+                  { label: t.portalTopbar.helpSupport, icon: HelpCircle, href: '#help' },
                 ].map((item) => (
                   <Link
                     key={`profile-menu-${item.label}`}
@@ -150,7 +151,7 @@ export default function PortalTopbar({ language, onLanguageChange, t, sidebarCol
                 <div className="border-t border-border mt-1 pt-1">
                   <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-error hover:bg-error-bg transition-colors">
                     <LogOut size={15} />
-                    Đăng xuất
+                    {t.portalTopbar.logout}
                   </button>
                 </div>
               </div>

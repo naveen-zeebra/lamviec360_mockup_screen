@@ -4,29 +4,31 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import StatusBadge from '@/components/StatusBadge';
 import { mockApplications } from '@/lib/mockData';
+import { TranslationKeys } from '@/lib/i18n';
 
-export default function RecentApplications() {
+export default function RecentApplications({ t, language }: { t: TranslationKeys; language: string }) {
   const recent = mockApplications?.slice(0, 4);
+  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
 
   return (
     <section aria-labelledby="recent-apps-heading">
       <div className="flex items-center justify-between mb-3">
         <h2 id="recent-apps-heading" className="font-bold text-foreground text-base">
-          Đơn Ứng Tuyển Gần Đây
+          {t.dashboard.recentApplicationsHeading}
         </h2>
         <Link
           href="/my-applications"
           className="flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
         >
-          Xem tất cả <ArrowRight size={13} />
+          {t.dashboard.viewAllLower} <ArrowRight size={13} />
         </Link>
       </div>
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         {recent?.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-sm text-muted-foreground">Bạn chưa nộp đơn ứng tuyển nào.</p>
+            <p className="text-sm text-muted-foreground">{t.dashboard.noApplications}</p>
             <Link href="/find-jobs-page" className="inline-flex mt-3 text-sm font-semibold text-primary hover:text-primary-dark transition-colors">
-              Khám phá việc làm
+              {t.dashboard.exploreJobsLower}
             </Link>
           </div>
         ) : (
@@ -43,15 +45,15 @@ export default function RecentApplications() {
                   </div>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0 ml-3">
-                  <StatusBadge status={app?.status} size="sm" />
+                  <StatusBadge status={app?.status} t={t} size="sm" />
                   <span className="text-xs text-muted-foreground hidden sm:block tab-number">
-                    {new Date(app.appliedDate)?.toLocaleDateString('vi-VN')}
+                    {new Date(app.appliedDate)?.toLocaleDateString(locale)}
                   </span>
                   <Link
                     href="/my-applications"
                     className="text-xs text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
                   >
-                    Chi tiết
+                    {t.dashboard.details}
                   </Link>
                 </div>
               </div>

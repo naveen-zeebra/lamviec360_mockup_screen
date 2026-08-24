@@ -3,25 +3,28 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/lib/useLanguage';
 import PortalSidebar from '@/components/PortalSidebar';
 import PortalTopbar from '@/components/PortalTopbar';
-import StatusBadge from '@/components/StatusBadge';
+import StatusBadge, { statusLabelKeys, ApplicationStatus } from '@/components/StatusBadge';
 import ApplicationDetailDrawer from './ApplicationDetailDrawer';
 import { mockApplications, mockNotifications, Application } from '@/lib/mockData';
 import { Search, Filter, ChevronDown, FileText, MapPin, DollarSign, Calendar } from 'lucide-react';
+import { TranslationKeys } from '@/lib/i18n';
 
 type StatusTab = 'all' | 'Applied' | 'Under Review' | 'Shortlisted' | 'Interview Scheduled' | 'Offer Sent' | 'Rejected';
 
-const tabs: { key: StatusTab; label: string; labelVi: string }[] = [
-  { key: 'all', label: 'All', labelVi: 'Tất Cả' },
-  { key: 'Applied', label: 'Applied', labelVi: 'Đã Nộp' },
-  { key: 'Under Review', label: 'Under Review', labelVi: 'Đang Xét' },
-  { key: 'Shortlisted', label: 'Shortlisted', labelVi: 'Được Chọn' },
-  { key: 'Interview Scheduled', label: 'Interview', labelVi: 'Phỏng Vấn' },
-  { key: 'Offer Sent', label: 'Offer', labelVi: 'Offer' },
-  { key: 'Rejected', label: 'Rejected', labelVi: 'Từ Chối' },
+const tabKeys: { key: StatusTab; labelKey: keyof TranslationKeys['applications'] }[] = [
+  { key: 'all', labelKey: 'all' },
+  { key: 'Applied', labelKey: 'applied' },
+  { key: 'Under Review', labelKey: 'underReview' },
+  { key: 'Shortlisted', labelKey: 'shortlisted' },
+  { key: 'Interview Scheduled', labelKey: 'interviewScheduled' },
+  { key: 'Offer Sent', labelKey: 'offerSent' },
+  { key: 'Rejected', labelKey: 'rejected' },
 ];
 
 export default function MyApplicationsClient() {
   const { language, changeLanguage, t } = useLanguage();
+  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
+  const tabs = tabKeys.map(tab => ({ key: tab.key, label: t.applications[tab.labelKey] }));
   const [activeTab, setActiveTab] = useState<StatusTab>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
@@ -58,9 +61,9 @@ export default function MyApplicationsClient() {
           {/* Page Header */}
           <div className="flex items-start justify-between mb-6 flex-wrap gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Đơn Ứng Tuyển</h1>
+              <h1 className="text-2xl font-bold text-foreground">{t.myApplications.heading}</h1>
               <p className="text-sm text-muted-foreground mt-1 tab-number">
-                {mockApplications.length} đơn ứng tuyển tổng cộng
+                {t.myApplications.totalCount(mockApplications.length)}
               </p>
             </div>
           </div>
@@ -71,7 +74,7 @@ export default function MyApplicationsClient() {
               <Search size={15} className="text-muted-foreground flex-shrink-0" />
               <input
                 type="text"
-                placeholder="Tìm theo tên công việc hoặc công ty..."
+                placeholder={t.myApplications.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 text-sm bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
@@ -80,7 +83,7 @@ export default function MyApplicationsClient() {
             </div>
             <div className="flex items-center gap-2 px-3 py-2.5 border border-border rounded-xl bg-card text-sm text-muted-foreground cursor-pointer hover:bg-muted transition-colors">
               <Filter size={14} />
-              <span>Bộ lọc</span>
+              <span>{t.myApplications.filters}</span>
               <ChevronDown size={13} />
             </div>
           </div>
@@ -102,7 +105,7 @@ export default function MyApplicationsClient() {
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }`}
                 >
-                  {tab.labelVi}
+                  {tab.label}
                   {count > 0 && (
                     <span className={`tab-number text-xs px-1.5 py-0.5 rounded-pill font-bold ${
                       isActive ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground'
@@ -122,21 +125,21 @@ export default function MyApplicationsClient() {
                 <FileText size={24} className="text-muted-foreground" />
               </div>
               <h3 className="font-bold text-foreground text-base mb-2">
-                {activeTab === 'all' ? 'Bạn chưa ứng tuyển vị trí nào' : `Không có đơn ở trạng thái "${tabs.find(t => t.key === activeTab)?.labelVi}"`}
+                {activeTab === 'all' ? t.myApplications.emptyAllHeading : t.myApplications.emptyStatusHeading(tabs.find(tb => tb.key === activeTab)?.label ?? '')}
               </h3>
               <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
-                {activeTab === 'all' ?'Khám phá các cơ hội việc làm và bắt đầu ứng tuyển ngay hôm nay.' :'Thử chọn tab khác hoặc xem tất cả đơn ứng tuyển của bạn.'}
+                {activeTab === 'all' ? t.myApplications.emptyAllBody : t.myApplications.emptyStatusBody}
               </p>
               {activeTab === 'all' && (
                 <a href="/find-jobs-page" className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95">
-                  Khám Phá Việc Làm
+                  {t.myApplications.exploreJobs}
                 </a>
               )}
             </div>
           ) : (
             <div className="space-y-3">
               {filteredApps.map((app) => (
-                <ApplicationCard key={app.id} app={app} onViewDetail={handleViewDetail} />
+                <ApplicationCard key={app.id} app={app} onViewDetail={handleViewDetail} t={t} locale={locale} />
               ))}
             </div>
           )}
@@ -145,12 +148,12 @@ export default function MyApplicationsClient() {
           {filteredApps.length > 0 && (
             <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
               <p className="text-sm text-muted-foreground tab-number">
-                Hiển thị {filteredApps.length} trong {mockApplications.length} đơn
+                {t.myApplications.showingCount(filteredApps.length, mockApplications.length)}
               </p>
               <div className="flex items-center gap-1">
-                <button disabled className="px-3 py-2 text-sm border border-border rounded-lg text-muted-foreground opacity-40 cursor-not-allowed">Trước</button>
+                <button disabled className="px-3 py-2 text-sm border border-border rounded-lg text-muted-foreground opacity-40 cursor-not-allowed">{t.findJobs.previous}</button>
                 <button className="w-9 h-9 text-sm rounded-lg font-medium bg-primary text-white tab-number" aria-current="page">1</button>
-                <button disabled className="px-3 py-2 text-sm border border-border rounded-lg text-muted-foreground opacity-40 cursor-not-allowed">Sau</button>
+                <button disabled className="px-3 py-2 text-sm border border-border rounded-lg text-muted-foreground opacity-40 cursor-not-allowed">{t.findJobs.next}</button>
               </div>
             </div>
           )}
@@ -162,6 +165,8 @@ export default function MyApplicationsClient() {
         <ApplicationDetailDrawer
           application={selectedApp}
           onClose={() => { setIsDrawerOpen(false); setSelectedApp(null); }}
+          t={t}
+          language={language}
         />
       )}
     </div>
@@ -169,7 +174,7 @@ export default function MyApplicationsClient() {
 }
 
 // ── Inline ApplicationCard component ──────────────────────────────────────────
-function ApplicationCard({ app, onViewDetail }: { app: Application; onViewDetail: (app: Application) => void }) {
+function ApplicationCard({ app, onViewDetail, t, locale }: { app: Application; onViewDetail: (app: Application) => void; t: TranslationKeys; locale: string }) {
   const initials = app.company.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
   const companyColors: Record<string, string> = {
@@ -201,7 +206,7 @@ function ApplicationCard({ app, onViewDetail }: { app: Application; onViewDetail
               </h3>
               <p className="text-sm text-muted-foreground mt-0.5">{app.company}</p>
             </div>
-            <StatusBadge status={app.status} />
+            <StatusBadge status={app.status} t={t} />
           </div>
 
           <div className="flex flex-wrap gap-3 mt-2.5">
@@ -215,7 +220,7 @@ function ApplicationCard({ app, onViewDetail }: { app: Application; onViewDetail
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Calendar size={12} />
-              <span>Nộp ngày {new Date(app.appliedDate).toLocaleDateString('vi-VN')}</span>
+              <span>{t.myApplications.appliedOn(new Date(app.appliedDate).toLocaleDateString(locale))}</span>
             </div>
           </div>
 
@@ -226,7 +231,7 @@ function ApplicationCard({ app, onViewDetail }: { app: Application; onViewDetail
                 <div key={`mini-timeline-${app.id}-${idx}`} className="flex items-center gap-1 flex-shrink-0">
                   <div className={`w-2 h-2 rounded-full ${stage.completed ? (stage.active ? 'bg-primary' : 'bg-success') : 'bg-muted'}`} aria-hidden="true" />
                   <span className={`text-xs font-medium ${stage.active ? 'text-primary' : stage.completed ? 'text-muted-foreground' : 'text-muted'}`}>
-                    {stage.stage}
+                    {t.applications[statusLabelKeys[stage.stage as ApplicationStatus] || 'applied']}
                   </span>
                   {idx < app.timeline.length - 1 && (
                     <div className={`w-4 h-0.5 ${stage.completed ? 'bg-success' : 'bg-border'}`} aria-hidden="true" />
@@ -239,13 +244,13 @@ function ApplicationCard({ app, onViewDetail }: { app: Application; onViewDetail
 
         <div className="flex-shrink-0 hidden sm:flex flex-col items-end gap-2">
           <p className="text-xs text-muted-foreground tab-number">
-            Cập nhật {new Date(app.lastUpdated).toLocaleDateString('vi-VN')}
+            {t.myApplications.updatedOn(new Date(app.lastUpdated).toLocaleDateString(locale))}
           </p>
           <button
             onClick={(e) => { e.stopPropagation(); onViewDetail(app); }}
             className="text-xs font-semibold text-primary hover:text-primary-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-2 py-1 hover:bg-info-bg"
           >
-            Xem chi tiết
+            {t.jobCard.viewDetails}
           </button>
         </div>
       </div>

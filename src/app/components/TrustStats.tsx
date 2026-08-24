@@ -1,18 +1,19 @@
 import React from 'react';
+import { TranslationKeys } from '@/lib/i18n';
 
-const stats = [
-  { value: '10K+', label: 'Việc Làm Đang Tuyển', color: 'text-primary' },
-  { value: '5K+', label: 'Công Ty Đối Tác', color: 'text-success' },
-  { value: '50K+', label: 'Ứng Viên Đăng Ký', color: 'text-warning' },
-  { value: '1M+', label: 'Đơn Ứng Tuyển', color: 'text-error' },
-];
+export default function TrustStats({ t }: { t: TranslationKeys }) {
+  const stats = [
+    { value: '10K+', label: t.trustStats.jobsOpen, color: 'text-primary' },
+    { value: '5K+', label: t.trustStats.companiesPartner, color: 'text-success' },
+    { value: '50K+', label: t.trustStats.candidatesRegistered, color: 'text-warning' },
+    { value: '1M+', label: t.trustStats.applicationsSubmitted, color: 'text-error' },
+  ];
 
-export default function TrustStats() {
   return (
     <section className="bg-card border-y border-border py-12" aria-label="Platform statistics">
       <div className="max-w-screen-2xl mx-auto px-4 lg:px-8 xl:px-10">
         <p className="text-center text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-8">
-          Cách Tốt Hơn Để Tìm Cơ Hội Tiếp Theo
+          {t.trustStats.eyebrow}
         </p>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {stats?.map((stat) => (

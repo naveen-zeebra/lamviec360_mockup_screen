@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Loader2, Globe } from 'lucide-react';
 import { toast } from 'sonner';
+import { TranslationKeys } from '@/lib/i18n';
 
 interface LoginFormData {
   email: string;
@@ -12,7 +13,7 @@ interface LoginFormData {
 }
 
 interface LoginFormProps {
-  t: { authentication: Record<string, string> };
+  t: TranslationKeys;
   onSwitchToRegister: () => void;
   onSwitchToForgot: () => void;
 }
@@ -33,10 +34,10 @@ export default function LoginForm({ t, onSwitchToRegister, onSwitchToForgot }: L
     // Backend integration: POST /api/auth/login with email + password
     await new Promise(r => setTimeout(r, 1200));
     if (data.email === DEMO_CREDENTIALS.email && data.password === DEMO_CREDENTIALS.password) {
-      toast.success('Đăng nhập thành công! Chào mừng trở lại.');
+      toast.success(t.authForms.loginSuccessToast);
       window.location.href = '/job-seeker-dashboard';
     } else {
-      toast.error('Thông tin đăng nhập không đúng — sử dụng tài khoản demo bên dưới để đăng nhập');
+      toast.error(t.authForms.loginErrorToast);
     }
     setIsLoading(false);
   };
@@ -45,7 +46,7 @@ export default function LoginForm({ t, onSwitchToRegister, onSwitchToForgot }: L
     <div className="animate-fade-in">
       <div className="mb-7">
         <h1 className="text-2xl font-bold text-foreground mb-1">{t.authentication.welcomeBack}</h1>
-        <p className="text-sm text-muted-foreground">Đăng nhập để tiếp tục hành trình tìm việc của bạn</p>
+        <p className="text-sm text-muted-foreground">{t.authForms.loginSubtitle}</p>
       </div>
 
       {/* Google OAuth */}
@@ -63,7 +64,7 @@ export default function LoginForm({ t, onSwitchToRegister, onSwitchToForgot }: L
           <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-background px-3 text-xs text-muted-foreground">hoặc đăng nhập bằng email</span>
+          <span className="bg-background px-3 text-xs text-muted-foreground">{t.authForms.orSignInWithEmail}</span>
         </div>
       </div>
 
@@ -77,15 +78,15 @@ export default function LoginForm({ t, onSwitchToRegister, onSwitchToForgot }: L
             id="login-email"
             type="email"
             autoComplete="email"
-            placeholder="ten@email.com"
+            placeholder={t.authForms.emailPlaceholder}
             className={`w-full px-4 py-3 border rounded-xl text-sm bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all ${
               errors.email ? 'border-error focus-visible:ring-error' : 'border-border'
             }`}
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? 'login-email-error' : undefined}
             {...register('email', {
-              required: 'Vui lòng nhập địa chỉ email',
-              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Địa chỉ email không hợp lệ' },
+              required: t.authForms.errorEmailRequired,
+              pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: t.authForms.errorEmailInvalid },
             })}
           />
           {errors.email && (
@@ -120,13 +121,13 @@ export default function LoginForm({ t, onSwitchToRegister, onSwitchToForgot }: L
               }`}
               aria-invalid={!!errors.password}
               aria-describedby={errors.password ? 'login-password-error' : undefined}
-              {...register('password', { required: 'Vui lòng nhập mật khẩu' })}
+              {...register('password', { required: t.authForms.errorPasswordRequired })}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded p-0.5"
-              aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+              aria-label={showPassword ? t.authForms.hidePasswordAria : t.authForms.showPasswordAria}
             >
               {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>
@@ -158,7 +159,7 @@ export default function LoginForm({ t, onSwitchToRegister, onSwitchToForgot }: L
           {isLoading ? (
             <>
               <Loader2 size={17} className="animate-spin" />
-              Đang đăng nhập...
+              {t.authForms.signingIn}
             </>
           ) : (
             t.authentication.login
@@ -178,7 +179,7 @@ export default function LoginForm({ t, onSwitchToRegister, onSwitchToForgot }: L
 
       {/* Demo Credentials */}
       <div className="mt-5 p-4 bg-muted/60 border border-border rounded-xl">
-        <p className="text-xs font-semibold text-muted-foreground mb-2.5 uppercase tracking-wider">Tài khoản demo</p>
+        <p className="text-xs font-semibold text-muted-foreground mb-2.5 uppercase tracking-wider">{t.authForms.demoAccountLabel}</p>
         <div className="space-y-1.5">
           <div className="flex items-center justify-between gap-2">
             <span className="text-xs text-muted-foreground">Email:</span>
@@ -190,12 +191,12 @@ export default function LoginForm({ t, onSwitchToRegister, onSwitchToForgot }: L
                 className="text-xs text-primary hover:text-primary-dark font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-1"
                 aria-label="Use demo email"
               >
-                Dùng
+                {t.authForms.useLabel}
               </button>
             </div>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-xs text-muted-foreground">Mật khẩu:</span>
+            <span className="text-xs text-muted-foreground">{t.authForms.demoPasswordLabel}</span>
             <div className="flex items-center gap-1.5">
               <code className="text-xs font-mono text-foreground bg-card px-2 py-0.5 rounded border border-border">{DEMO_CREDENTIALS.password}</code>
               <button
@@ -204,7 +205,7 @@ export default function LoginForm({ t, onSwitchToRegister, onSwitchToForgot }: L
                 className="text-xs text-primary hover:text-primary-dark font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded px-1"
                 aria-label="Use demo password"
               >
-                Dùng
+                {t.authForms.useLabel}
               </button>
             </div>
           </div>

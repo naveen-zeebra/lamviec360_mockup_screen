@@ -25,9 +25,9 @@ export default function AuthClient() {
   };
 
   const brandStats = [
-    { icon: Briefcase, value: '10K+', label: 'Việc làm đang tuyển' },
-    { icon: Users, value: '50K+', label: 'Ứng viên đăng ký' },
-    { icon: TrendingUp, value: '5K+', label: 'Công ty đối tác' },
+    { icon: Briefcase, value: '10K+', label: t.auth.statJobsOpen },
+    { icon: Users, value: '50K+', label: t.auth.statCandidatesRegistered },
+    { icon: TrendingUp, value: '5K+', label: t.auth.statCompaniesPartner },
   ];
 
   return (
@@ -40,18 +40,18 @@ export default function AuthClient() {
         </div>
         <div className="relative">
           <Link href="/" className="flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded-md" aria-label="Back to LamViec360 homepage">
-            <AppLogo src="/assets/images/lamviec-logo-none-1787565498437.png" size={40} />
-            <span className="font-bold text-xl text-white">LamViec360</span>
+            <AppLogo src="/assets/images/lamviec-logo-none-1787565498437.png" size={40} width={138} />
+            {/* <span className="font-bold text-xl text-white">LamViec360</span> */}
           </Link>
         </div>
         <div className="relative">
           <h1 className="text-3xl xl:text-4xl font-bold text-white leading-tight mb-4">
-            Tìm Việc Làm Phù Hợp.
+            {t.auth.brandHeading1}
             <br />
-            <span className="text-yellow-300">Xây Dựng Tương Lai.</span>
+            <span className="text-yellow-300">{t.auth.brandHeadingHighlight}</span>
           </h1>
           <p className="text-white/75 text-base leading-relaxed mb-8">
-            Tham gia cùng hàng nghìn ứng viên đang tìm kiếm cơ hội nghề nghiệp mơ ước trên LamViec360.
+            {t.auth.brandParagraph}
           </p>
           <div className="grid grid-cols-3 gap-4">
             {brandStats.map((stat) => {
@@ -67,7 +67,7 @@ export default function AuthClient() {
           </div>
         </div>
         <div className="relative">
-          <p className="text-xs text-white/40">© 2026 LamViec360. Tất cả quyền được bảo lưu.</p>
+          <p className="text-xs text-white/40">{t.footer.copyright}</p>
         </div>
       </div>
 
@@ -76,8 +76,8 @@ export default function AuthClient() {
         {/* Mobile Header */}
         <div className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-card">
           <Link href="/" className="flex items-center gap-2" aria-label="Back to homepage">
-            <AppLogo src="/assets/images/lamviec-logo-none-1787565498437.png" size={30} />
-            <span className="font-bold text-base text-foreground">LamViec360</span>
+            <AppLogo src="/assets/images/lamviec-logo-none-1787565498437.png" size={30} width={104} />
+            {/* <span className="font-bold text-base text-foreground">LamViec360</span> */}
           </Link>
           <LanguageSelector currentLanguage={language} onLanguageChange={changeLanguage} />
         </div>
@@ -96,7 +96,7 @@ export default function AuthClient() {
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
               >
                 <ArrowLeft size={15} />
-                Quay lại đăng nhập
+                {t.authentication.backToLogin}
               </button>
             )}
 
@@ -118,10 +118,11 @@ export default function AuthClient() {
               <OTPVerification
                 email={registeredEmail}
                 onSuccess={() => setView('login')}
+                t={t}
               />
             )}
             {view === 'forgot' && (
-              <ForgotPassword onBack={() => setView('login')} />
+              <ForgotPassword onBack={() => setView('login')} t={t} />
             )}
           </div>
         </div>

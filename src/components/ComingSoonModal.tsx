@@ -1,20 +1,16 @@
 'use client';
 import React, { useEffect } from 'react';
 import { X, Sparkles, CheckCircle, Bell } from 'lucide-react';
+import { TranslationKeys } from '@/lib/i18n';
 
 interface ComingSoonModalProps {
   isOpen: boolean;
   onClose: () => void;
+  t: TranslationKeys;
 }
 
-const features = [
-  'Câu hỏi kỹ thuật theo vị trí',
-  'Câu hỏi hành vi (STAR method)',
-  'Luyện tập theo ngành nghề',
-  'Chuẩn bị cá nhân hóa',
-];
-
-export default function ComingSoonModal({ isOpen, onClose }: ComingSoonModalProps) {
+export default function ComingSoonModal({ isOpen, onClose, t }: ComingSoonModalProps) {
+  const features = t.interviewPreparation.features;
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -47,7 +43,7 @@ export default function ComingSoonModal({ isOpen, onClose }: ComingSoonModalProp
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sparkles size={20} className="text-yellow-400" />
-              <span className="text-sm font-semibold text-yellow-400 uppercase tracking-wider">Sắp Ra Mắt</span>
+              <span className="text-sm font-semibold text-yellow-400 uppercase tracking-wider">{t.interviewPreparation.comingSoon}</span>
             </div>
             <button
               onClick={onClose}
@@ -58,15 +54,15 @@ export default function ComingSoonModal({ isOpen, onClose }: ComingSoonModalProp
             </button>
           </div>
           <h2 id="coming-soon-title" className="text-2xl font-bold mt-3">
-            AI Interview Preparation
+            {t.interviewPreparation.title}
           </h2>
           <p className="text-white/80 text-sm mt-2">
-            Chúng tôi đang xây dựng trải nghiệm luyện phỏng vấn được hỗ trợ bởi AI để giúp bạn chuẩn bị cho các câu hỏi kỹ thuật, hành vi và theo ngành nghề.
+            {t.interviewPreparation.description}
           </p>
         </div>
 
         <div className="p-6">
-          <h3 className="font-semibold text-foreground text-sm mb-3">Tính năng sẽ có:</h3>
+          <h3 className="font-semibold text-foreground text-sm mb-3">{t.interviewPreparation.featuresTitle}</h3>
           <ul className="space-y-2.5">
             {features.map((feature) => (
               <li key={`feature-${feature}`} className="flex items-center gap-2.5 text-sm text-foreground">
@@ -81,13 +77,13 @@ export default function ComingSoonModal({ isOpen, onClose }: ComingSoonModalProp
               onClick={onClose}
               className="w-full py-2.5 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
             >
-              Đã hiểu
+              {t.common.gotIt}
             </button>
             <button
               className="w-full py-2.5 border border-border text-foreground font-medium rounded-lg hover:bg-muted transition-colors flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <Bell size={15} />
-              Thông báo khi có
+              {t.interviewPreparation.notifyMe}
             </button>
           </div>
         </div>

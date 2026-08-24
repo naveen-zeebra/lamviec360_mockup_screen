@@ -20,6 +20,7 @@ export default function JobDetailsClient() {
   // Using job-001 as the featured job for this detail page
   const job = mockJobs?.[0];
   const similarJobs = mockJobs?.slice(1, 4);
+  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
 
   const workModeColor = {
     Remote: 'bg-success-bg text-success-foreground',
@@ -35,9 +36,9 @@ export default function JobDetailsClient() {
         <div className="bg-card border-b border-border">
           <div className="max-w-screen-2xl mx-auto px-4 lg:px-8 xl:px-10 py-3">
             <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Link href="/" className="hover:text-primary transition-colors">Trang chủ</Link>
+              <Link href="/" className="hover:text-primary transition-colors">{t.jobDetails.breadcrumbHome}</Link>
               <ChevronRight size={12} />
-              <Link href="/find-jobs-page" className="hover:text-primary transition-colors">Tìm việc làm</Link>
+              <Link href="/find-jobs-page" className="hover:text-primary transition-colors">{t.jobDetails.breadcrumbFindJobs}</Link>
               <ChevronRight size={12} />
               <span className="text-foreground font-medium truncate max-w-[200px]">{job?.title}</span>
             </nav>
@@ -66,7 +67,7 @@ export default function JobDetailsClient() {
                           {job?.isVerified && (
                             <span className="flex items-center gap-1 text-xs text-primary font-medium bg-info-bg px-2 py-0.5 rounded-pill">
                               <CheckCircle size={11} />
-                              Đã xác minh
+                              {t.jobDetails.verified}
                             </span>
                           )}
                         </div>
@@ -75,7 +76,7 @@ export default function JobDetailsClient() {
                         <button
                           onClick={() => {}}
                           className="p-2 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label="Share job"
+                          aria-label={t.jobDetails.shareAria}
                         >
                           <Share2 size={17} />
                         </button>
@@ -84,7 +85,7 @@ export default function JobDetailsClient() {
                           className={`p-2 rounded-lg border transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95 ${
                             isSaved ? 'border-primary bg-info-bg text-primary' : 'border-border text-muted-foreground hover:text-primary hover:border-primary hover:bg-info-bg'
                           }`}
-                          aria-label={isSaved ? 'Bỏ lưu việc làm này' : 'Lưu việc làm này'}
+                          aria-label={isSaved ? t.jobDetails.unsaveAria : t.jobDetails.saveAria}
                         >
                           {isSaved ? <BookmarkCheck size={17} /> : <Bookmark size={17} />}
                         </button>
@@ -106,7 +107,7 @@ export default function JobDetailsClient() {
                       </div>
                       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                         <Clock size={14} className="flex-shrink-0" />
-                        <span>Đăng {new Date(job.postedDate)?.toLocaleDateString('vi-VN')}</span>
+                        <span>{t.jobDetails.postedOn(new Date(job.postedDate)?.toLocaleDateString(locale))}</span>
                       </div>
                     </div>
 
@@ -115,7 +116,7 @@ export default function JobDetailsClient() {
                       <span className="text-xs font-medium px-2.5 py-1 rounded-pill bg-muted text-muted-foreground">{job?.employmentType}</span>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Calendar size={12} />
-                        <span>Hạn nộp: {new Date(job.deadline)?.toLocaleDateString('vi-VN')}</span>
+                        <span>{t.jobDetails.deadlineLabel(new Date(job.deadline)?.toLocaleDateString(locale))}</span>
                       </div>
                     </div>
                   </div>
@@ -126,19 +127,19 @@ export default function JobDetailsClient() {
                   {isDeadlinePassed ? (
                     <div className="flex-1 flex items-center justify-center gap-2 py-3 bg-muted text-muted-foreground text-sm font-semibold rounded-xl cursor-not-allowed">
                       <AlertCircle size={16} />
-                      Đã hết hạn nộp
+                      {t.jobDetails.expired}
                     </div>
                   ) : hasApplied ? (
                     <Link href="/my-applications" className="flex-1 flex items-center justify-center gap-2 py-3 bg-success-bg text-success-foreground text-sm font-semibold rounded-xl">
                       <CheckCircle size={16} />
-                      Đã ứng tuyển — Xem đơn
+                      {t.jobDetails.appliedViewApplication}
                     </Link>
                   ) : (
                     <Link
                       href="/sign-up-login-screen"
                       className="flex-1 flex items-center justify-center py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
                     >
-                      Ứng Tuyển Ngay
+                      {t.jobDetails.applyNow}
                     </Link>
                   )}
                 </div>
@@ -147,14 +148,14 @@ export default function JobDetailsClient() {
               {/* Job Description */}
               <div className="bg-card border border-border rounded-xl p-6 mb-5 space-y-6">
                 <section aria-labelledby="description-heading">
-                  <h2 id="description-heading" className="text-lg font-bold text-foreground mb-3">Mô Tả Công Việc</h2>
+                  <h2 id="description-heading" className="text-lg font-bold text-foreground mb-3">{t.jobDetails.description}</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed">{job?.description}</p>
                 </section>
 
                 <div className="border-t border-border" />
 
                 <section aria-labelledby="responsibilities-heading">
-                  <h2 id="responsibilities-heading" className="text-lg font-bold text-foreground mb-3">Trách Nhiệm</h2>
+                  <h2 id="responsibilities-heading" className="text-lg font-bold text-foreground mb-3">{t.jobDetails.responsibilities}</h2>
                   <ul className="space-y-2">
                     {job?.responsibilities?.map((resp, idx) => (
                       <li key={`resp-${job?.id}-${idx}`} className="flex items-start gap-2.5 text-sm text-muted-foreground">
@@ -168,7 +169,7 @@ export default function JobDetailsClient() {
                 <div className="border-t border-border" />
 
                 <section aria-labelledby="requirements-heading">
-                  <h2 id="requirements-heading" className="text-lg font-bold text-foreground mb-3">Yêu Cầu</h2>
+                  <h2 id="requirements-heading" className="text-lg font-bold text-foreground mb-3">{t.jobDetails.requirements}</h2>
                   <ul className="space-y-2">
                     {job?.requirements?.map((req, idx) => (
                       <li key={`req-${job?.id}-${idx}`} className="flex items-start gap-2.5 text-sm text-muted-foreground">
@@ -182,7 +183,7 @@ export default function JobDetailsClient() {
                 <div className="border-t border-border" />
 
                 <section aria-labelledby="skills-heading">
-                  <h2 id="skills-heading" className="text-lg font-bold text-foreground mb-3">Kỹ Năng Yêu Cầu</h2>
+                  <h2 id="skills-heading" className="text-lg font-bold text-foreground mb-3">{t.jobDetails.skillsRequired}</h2>
                   <div className="flex flex-wrap gap-2">
                     {job?.skills?.map((skill) => (
                       <span key={`skill-detail-${skill}`} className="px-3 py-1.5 bg-info-bg text-info text-sm font-medium rounded-lg border border-info/20">
@@ -195,7 +196,7 @@ export default function JobDetailsClient() {
                 <div className="border-t border-border" />
 
                 <section aria-labelledby="benefits-heading">
-                  <h2 id="benefits-heading" className="text-lg font-bold text-foreground mb-3">Quyền Lợi</h2>
+                  <h2 id="benefits-heading" className="text-lg font-bold text-foreground mb-3">{t.jobDetails.benefits}</h2>
                   <ul className="space-y-2">
                     {job?.benefits?.map((benefit, idx) => (
                       <li key={`benefit-${job?.id}-${idx}`} className="flex items-center gap-2.5 text-sm text-muted-foreground">
@@ -209,7 +210,7 @@ export default function JobDetailsClient() {
 
               {/* Company Info */}
               <div className="bg-card border border-border rounded-xl p-6 mb-5">
-                <h2 className="text-lg font-bold text-foreground mb-4">Thông Tin Công Ty</h2>
+                <h2 className="text-lg font-bold text-foreground mb-4">{t.jobDetails.companyInfo}</h2>
                 <div className="flex items-start gap-4">
                   <div className="w-14 h-14 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg font-bold flex-shrink-0">
                     VN
@@ -219,11 +220,11 @@ export default function JobDetailsClient() {
                     <div className="flex flex-wrap gap-4 mt-2">
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Users size={13} />
-                        <span>1,000–5,000 nhân viên</span>
+                        <span>{t.jobDetails.employeeCount}</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Globe size={13} />
-                        <span>Công nghệ thông tin</span>
+                        <span>{t.jobDetails.industry}</span>
                       </div>
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                         <MapPin size={13} />
@@ -231,7 +232,7 @@ export default function JobDetailsClient() {
                       </div>
                     </div>
                     <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
-                      Một trong những tập đoàn công nghệ hàng đầu Việt Nam, chuyên phát triển các sản phẩm và dịch vụ số phục vụ hàng triệu người dùng.
+                      {t.jobDetails.companyDescription}
                     </p>
                   </div>
                 </div>
@@ -239,10 +240,10 @@ export default function JobDetailsClient() {
 
               {/* Similar Jobs */}
               <div>
-                <h2 className="text-lg font-bold text-foreground mb-4">Việc Làm Tương Tự</h2>
+                <h2 className="text-lg font-bold text-foreground mb-4">{t.jobDetails.similarJobs}</h2>
                 <div className="space-y-3">
                   {similarJobs?.map((sj) => (
-                    <JobCard key={sj?.id} job={sj} variant="compact" />
+                    <JobCard key={sj?.id} job={sj} t={t} variant="compact" />
                   ))}
                 </div>
               </div>
@@ -271,15 +272,15 @@ export default function JobDetailsClient() {
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar size={15} className="text-muted-foreground flex-shrink-0" />
-                    <span className="text-muted-foreground">Hạn: {new Date(job.deadline)?.toLocaleDateString('vi-VN')}</span>
+                    <span className="text-muted-foreground">{t.jobDetails.deadlineShort(new Date(job.deadline)?.toLocaleDateString(locale))}</span>
                   </div>
                 </div>
 
                 <div className="border-t border-border pt-4 space-y-2.5">
                   {isDeadlinePassed ? (
-                    <div className="w-full flex items-center justify-center gap-2 py-3 bg-muted text-muted-foreground text-sm font-semibold rounded-xl cursor-not-allowed" aria-label="Application period closed">
+                    <div className="w-full flex items-center justify-center gap-2 py-3 bg-muted text-muted-foreground text-sm font-semibold rounded-xl cursor-not-allowed" aria-label={t.jobDetails.applicationClosedAria}>
                       <AlertCircle size={16} />
-                      Đã Hết Hạn Nộp
+                      {t.jobDetails.expired}
                     </div>
                   ) : hasApplied ? (
                     <Link
@@ -287,14 +288,14 @@ export default function JobDetailsClient() {
                       className="w-full flex items-center justify-center gap-2 py-3 bg-success-bg text-success-foreground text-sm font-semibold rounded-xl border border-success/20 hover:bg-success/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <CheckCircle size={16} />
-                      Đã Ứng Tuyển — Xem Đơn
+                      {t.jobDetails.appliedViewApplication}
                     </Link>
                   ) : (
                     <Link
                       href="/sign-up-login-screen"
                       className="w-full flex items-center justify-center py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
                     >
-                      Ứng Tuyển Ngay
+                      {t.jobDetails.applyNow}
                     </Link>
                   )}
                   <button
@@ -303,16 +304,16 @@ export default function JobDetailsClient() {
                       isSaved
                         ? 'border-primary bg-info-bg text-primary' :'border-border text-foreground hover:border-primary hover:text-primary hover:bg-info-bg'
                     }`}
-                    aria-label={isSaved ? 'Bỏ lưu việc làm' : 'Lưu việc làm'}
+                    aria-label={isSaved ? t.jobDetails.unsaveAria : t.jobDetails.saveAria}
                   >
                     {isSaved ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
-                    {isSaved ? 'Đã Lưu' : 'Lưu Việc Làm'}
+                    {isSaved ? t.jobDetails.saved : t.jobDetails.saveJob}
                   </button>
                 </div>
 
                 <div className="border-t border-border pt-3">
                   <p className="text-xs text-muted-foreground text-center">
-                    Đăng ngày {new Date(job.postedDate)?.toLocaleDateString('vi-VN')}
+                    {t.jobDetails.postedOnCaption(new Date(job.postedDate)?.toLocaleDateString(locale))}
                   </p>
                 </div>
               </div>
@@ -325,24 +326,24 @@ export default function JobDetailsClient() {
         {isDeadlinePassed ? (
           <div className="flex items-center justify-center gap-2 py-3 bg-muted text-muted-foreground text-sm font-semibold rounded-xl cursor-not-allowed">
             <AlertCircle size={16} />
-            Đã Hết Hạn Nộp
+            {t.jobDetails.expired}
           </div>
         ) : hasApplied ? (
           <Link href="/my-applications" className="flex items-center justify-center gap-2 py-3 bg-success-bg text-success-foreground text-sm font-semibold rounded-xl border border-success/20">
             <CheckCircle size={16} />
-            Đã Ứng Tuyển — Xem Đơn
+            {t.jobDetails.appliedViewApplication}
           </Link>
         ) : (
           <Link
             href="/sign-up-login-screen"
             className="flex items-center justify-center py-3 bg-primary text-white text-sm font-semibold rounded-xl hover:bg-primary-dark transition-colors w-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
           >
-            Ứng Tuyển Ngay
+            {t.jobDetails.applyNow}
           </Link>
         )}
       </div>
       <div className="lg:hidden pb-20" />
-      <PublicFooter />
+      <PublicFooter t={t} />
     </div>
   );
 }

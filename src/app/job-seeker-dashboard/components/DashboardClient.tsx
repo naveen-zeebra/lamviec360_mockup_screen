@@ -28,32 +28,32 @@ export default function DashboardClient() {
         <main className="flex-1 pt-16 p-4 lg:p-6 xl:p-8 max-w-screen-2xl w-full mx-auto" aria-label="Dashboard content">
           {/* Page Header */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground">Xin chào, Nguyễn Minh Anh! 👋</h1>
-            <p className="text-sm text-muted-foreground mt-1">Đây là các cơ hội mới nhất phù hợp với hồ sơ của bạn.</p>
+            <h1 className="text-2xl font-bold text-foreground">{t.dashboard.greeting('Nguyễn Minh Anh')}</h1>
+            <p className="text-sm text-muted-foreground mt-1">{t.dashboard.subheading}</p>
           </div>
 
           {/* KPI Cards */}
-          <KPICards />
+          <KPICards t={t} />
 
           {/* Main Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
             {/* Left — 2 cols */}
             <div className="lg:col-span-2 space-y-5">
-              <RecommendedJobsSection />
-              <RecentApplications />
+              <RecommendedJobsSection t={t} />
+              <RecentApplications t={t} language={language} />
             </div>
 
             {/* Right — 1 col */}
             <div className="space-y-5">
-              <ProfileCompletionCard />
-              <NotificationsPreview />
-              <AIInterviewCard onOpenModal={() => setIsComingSoonOpen(true)} />
+              <ProfileCompletionCard t={t} />
+              <NotificationsPreview t={t} />
+              <AIInterviewCard onOpenModal={() => setIsComingSoonOpen(true)} t={t} />
             </div>
           </div>
         </main>
       </div>
 
-      <ComingSoonModal isOpen={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} />
+      <ComingSoonModal isOpen={isComingSoonOpen} onClose={() => setIsComingSoonOpen(false)} t={t} />
     </div>
   );
 }

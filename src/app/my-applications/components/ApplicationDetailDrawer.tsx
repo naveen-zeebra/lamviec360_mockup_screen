@@ -1,17 +1,20 @@
 'use client';
 import React, { useEffect } from 'react';
 import { Application } from '@/lib/mockData';
-import StatusBadge from '@/components/StatusBadge';
+import StatusBadge, { statusLabelKeys, ApplicationStatus } from '@/components/StatusBadge';
 import {
   X, MapPin, DollarSign, Calendar, CheckCircle,
   Clock, Star, Mic, Gift, Trophy, XCircle, Building2
 } from 'lucide-react';
 import Icon from '@/components/ui/AppIcon';
+import { TranslationKeys } from '@/lib/i18n';
 
 
 interface ApplicationDetailDrawerProps {
   application: Application;
   onClose: () => void;
+  t: TranslationKeys;
+  language: string;
 }
 
 const stageIcons: Record<string, React.ElementType> = {
@@ -34,7 +37,9 @@ const stageColors: Record<string, string> = {
   'Rejected': 'text-error-foreground bg-error-bg border-error/30',
 };
 
-export default function ApplicationDetailDrawer({ application, onClose }: ApplicationDetailDrawerProps) {
+export default function ApplicationDetailDrawer({ application, onClose, t, language }: ApplicationDetailDrawerProps) {
+  const locale = language === 'vi' ? 'vi-VN' : 'en-US';
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
@@ -59,7 +64,7 @@ export default function ApplicationDetailDrawer({ application, onClose }: Applic
       <div className="w-full max-w-lg bg-card h-full overflow-y-auto shadow-modal animate-slide-up flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-border sticky top-0 bg-card z-10">
-          <h2 id="drawer-title" className="font-bold text-foreground text-base">Chi Tiết Đơn Ứng Tuyển</h2>
+          <h2 id="drawer-title" className="font-bold text-foreground text-base">{t.applicationDetail.title}</h2>
           <button
             onClick={onClose}
             className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -97,26 +102,26 @@ export default function ApplicationDetailDrawer({ application, onClose }: Applic
           {/* Application Meta */}
           <div className="bg-muted/50 rounded-xl p-4 grid grid-cols-2 gap-3">
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Mã đơn</p>
+              <p className="text-xs text-muted-foreground mb-0.5">{t.applicationDetail.applicationId}</p>
               <p className="text-sm font-mono font-semibold text-foreground">{application.id.toUpperCase()}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Trạng thái hiện tại</p>
-              <StatusBadge status={application.status} size="sm" />
+              <p className="text-xs text-muted-foreground mb-0.5">{t.applicationDetail.currentStatus}</p>
+              <StatusBadge status={application.status} t={t} size="sm" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Ngày nộp</p>
-              <p className="text-sm font-semibold text-foreground tab-number">{new Date(application.appliedDate).toLocaleDateString('vi-VN')}</p>
+              <p className="text-xs text-muted-foreground mb-0.5">{t.applicationDetail.appliedDate}</p>
+              <p className="text-sm font-semibold text-foreground tab-number">{new Date(application.appliedDate).toLocaleDateString(locale)}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground mb-0.5">Cập nhật lần cuối</p>
-              <p className="text-sm font-semibold text-foreground tab-number">{new Date(application.lastUpdated).toLocaleDateString('vi-VN')}</p>
+              <p className="text-xs text-muted-foreground mb-0.5">{t.applicationDetail.lastUpdated}</p>
+              <p className="text-sm font-semibold text-foreground tab-number">{new Date(application.lastUpdated).toLocaleDateString(locale)}</p>
             </div>
           </div>
 
           {/* Application Timeline */}
           <div>
-            <h3 className="font-bold text-foreground text-sm mb-4">Tiến Trình Ứng Tuyển</h3>
+            <h3 className="font-bold text-foreground text-sm mb-4">{t.applicationDetail.timelineHeading}</h3>
             <ol className="relative space-y-0" aria-label="Application timeline">
               {application.timeline.map((stage, idx) => {
                 const Icon = stageIcons[stage.stage] || CheckCircle;
@@ -147,14 +152,14 @@ export default function ApplicationDetailDrawer({ application, onClose }: Applic
                     <div className={`flex-1 pb-6 ${isLast ? 'pb-0' : ''}`}>
                       <div className="flex items-center justify-between gap-2">
                         <p className={`text-sm font-semibold ${stage.active ? 'text-primary' : stage.completed ? 'text-foreground' : 'text-muted-foreground'}`}>
-                          {stage.stage}
+                          {t.applications[statusLabelKeys[stage.stage as ApplicationStatus] || 'applied']}
                           {stage.active && (
-                            <span className="ml-2 text-xs font-bold text-primary bg-info-bg px-1.5 py-0.5 rounded-pill">Hiện tại</span>
+                            <span className="ml-2 text-xs font-bold text-primary bg-info-bg px-1.5 py-0.5 rounded-pill">{t.applicationDetail.current}</span>
                           )}
                         </p>
                         {stage.date && (
                           <span className="text-xs text-muted-foreground tab-number flex-shrink-0">
-                            {new Date(stage.date).toLocaleDateString('vi-VN')}
+                            {new Date(stage.date).toLocaleDateString(locale)}
                           </span>
                         )}
                       </div>
@@ -176,8 +181,8 @@ export default function ApplicationDetailDrawer({ application, onClose }: Applic
               <div className="flex items-center gap-2 p-3 bg-info-bg border border-info/20 rounded-xl">
                 <Calendar size={15} className="text-primary flex-shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold text-primary">Phỏng vấn sắp tới</p>
-                  <p className="text-xs text-muted-foreground">28/08/2026 lúc 14:00 — Kỹ thuật</p>
+                  <p className="text-xs font-semibold text-primary">{t.applicationDetail.interviewUpcoming}</p>
+                  <p className="text-xs text-muted-foreground">{t.applicationDetail.interviewDetail}</p>
                 </div>
               </div>
             )}
@@ -185,8 +190,8 @@ export default function ApplicationDetailDrawer({ application, onClose }: Applic
               <div className="flex items-center gap-2 p-3 bg-success-bg border border-success/20 rounded-xl">
                 <Gift size={15} className="text-success flex-shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold text-success-foreground">Offer đang chờ phản hồi</p>
-                  <p className="text-xs text-muted-foreground">Hạn chót: 30/08/2026</p>
+                  <p className="text-xs font-semibold text-success-foreground">{t.applicationDetail.offerPending}</p>
+                  <p className="text-xs text-muted-foreground">{t.applicationDetail.offerDeadline}</p>
                 </div>
               </div>
             )}
@@ -194,7 +199,7 @@ export default function ApplicationDetailDrawer({ application, onClose }: Applic
               onClick={onClose}
               className="w-full py-2.5 border border-border text-foreground text-sm font-semibold rounded-xl hover:bg-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              Đóng
+              {t.applicationDetail.close}
             </button>
           </div>
         </div>

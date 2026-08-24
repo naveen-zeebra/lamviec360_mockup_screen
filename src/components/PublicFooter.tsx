@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import AppLogo from '@/components/ui/AppLogo';
 import { X as XIcon } from 'lucide-react';
+import { TranslationKeys } from '@/lib/i18n';
 
 // Simple inline SVG social icons to avoid lucide-react brand icon dependency
 const LinkedInIcon = () => (
@@ -25,35 +26,35 @@ const YoutubeIcon = () => (
   </svg>
 );
 
-export default function PublicFooter() {
+export default function PublicFooter({ t }: { t: TranslationKeys }) {
   const columns = [
     {
-      title: 'Cho Ứng Viên',
+      title: t.footer.forCandidates,
       links: [
-        { label: 'Tìm Việc Làm', href: '/find-jobs-page' },
-        { label: 'Việc Làm Đề Xuất', href: '/job-seeker-dashboard' },
-        { label: 'Việc Đã Lưu', href: '/job-seeker-dashboard' },
-        { label: 'Đơn Ứng Tuyển', href: '/my-applications' },
-        { label: 'Tài Nguyên Nghề Nghiệp', href: '#career-resources' },
+        { label: t.footer.findJobs, href: '/find-jobs-page' },
+        { label: t.footer.recommendedJobs, href: '/job-seeker-dashboard' },
+        { label: t.footer.savedJobs, href: '/job-seeker-dashboard' },
+        { label: t.footer.myApplications, href: '/my-applications' },
+        { label: t.footer.careerResources, href: '#career-resources' },
       ],
     },
     {
-      title: 'Cho Doanh Nghiệp',
+      title: t.footer.forEmployers,
       links: [
-        { label: 'Đăng Tuyển Dụng', href: '#' },
-        { label: 'Tìm Ứng Viên', href: '#' },
-        { label: 'Quản Lý Tuyển Dụng', href: '#' },
-        { label: 'Giải Pháp Tuyển Dụng', href: '#' },
+        { label: t.footer.postAJob, href: '#' },
+        { label: t.footer.findCandidates, href: '#' },
+        { label: t.footer.manageHiring, href: '#' },
+        { label: t.footer.hiringSolutions, href: '#' },
       ],
     },
     {
-      title: 'Về LamViec360',
+      title: t.footer.aboutLamViec,
       links: [
-        { label: 'Về Chúng Tôi', href: '#about' },
-        { label: 'Liên Hệ', href: '#contact' },
-        { label: 'Chính Sách Bảo Mật', href: '#privacy' },
-        { label: 'Điều Khoản Sử Dụng', href: '#terms' },
-        { label: 'Trung Tâm Hỗ Trợ', href: '#help' },
+        { label: t.footer.aboutUs, href: '#about' },
+        { label: t.footer.contact, href: '#contact' },
+        { label: t.footer.privacyPolicy, href: '#privacy' },
+        { label: t.footer.termsOfUse, href: '#terms' },
+        { label: t.footer.helpCenter, href: '#help' },
       ],
     },
   ];
@@ -66,17 +67,16 @@ export default function PublicFooter() {
   ];
 
   return (
-    <footer className="bg-foreground text-white" role="contentinfo">
+    <footer className="bg-white border-t border-border" role="contentinfo">
       <div className="max-w-screen-2xl mx-auto px-4 lg:px-8 xl:px-10 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <AppLogo src="/assets/images/lamviec-logo-none-1787565498437.png" size={36} />
-              <span className="font-bold text-lg text-white">LamViec360</span>
+              <AppLogo src="/assets/images/lamviec-logo-none-1787565498437.png" size={36} width={125} />
             </div>
-            <p className="text-sm text-white/60 leading-relaxed">
-              Nền tảng tuyển dụng hiện đại kết nối ứng viên tài năng với các công ty hàng đầu Việt Nam.
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {t.footer.tagline}
             </p>
             <div className="flex items-center gap-3 mt-5">
               {socials?.map((social) => (
@@ -84,7 +84,7 @@ export default function PublicFooter() {
                   key={`social-${social?.label}`}
                   href={social?.href}
                   aria-label={social?.label}
-                  className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/20 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+                  className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {social?.label === 'X (Twitter)' ? <XIcon size={16} /> : <social.Icon />}
                 </a>
@@ -94,13 +94,13 @@ export default function PublicFooter() {
 
           {columns?.map((col) => (
             <div key={`footer-col-${col?.title}`}>
-              <h3 className="font-semibold text-white text-sm mb-4 uppercase tracking-wider">{col?.title}</h3>
+              <h3 className="font-semibold text-foreground text-sm mb-4 uppercase tracking-wider">{col?.title}</h3>
               <ul className="space-y-2.5">
                 {col?.links?.map((link) => (
                   <li key={`footer-link-${link?.label}`}>
                     <Link
                       href={link?.href}
-                      className="text-sm text-white/60 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded"
+                      className="text-sm text-muted-foreground hover:text-foreground transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded"
                     >
                       {link?.label}
                     </Link>
@@ -111,12 +111,12 @@ export default function PublicFooter() {
           ))}
         </div>
 
-        <div className="border-t border-white/10 mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-sm text-white/50">© 2026 LamViec360. Tất cả quyền được bảo lưu.</p>
+        <div className="border-t border-border mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-sm text-muted-foreground">{t.footer.copyright}</p>
           <div className="flex items-center gap-4">
-            <Link href="#privacy" className="text-xs text-white/50 hover:text-white/80 transition-colors">Bảo mật</Link>
-            <Link href="#terms" className="text-xs text-white/50 hover:text-white/80 transition-colors">Điều khoản</Link>
-            <Link href="#cookies" className="text-xs text-white/50 hover:text-white/80 transition-colors">Cookies</Link>
+            <Link href="#privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t.footer.privacy}</Link>
+            <Link href="#terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t.footer.terms}</Link>
+            <Link href="#cookies" className="text-xs text-muted-foreground hover:text-foreground transition-colors">{t.footer.cookies}</Link>
           </div>
         </div>
       </div>

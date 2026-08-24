@@ -2,13 +2,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Loader2, CheckCircle, Mail } from 'lucide-react';
 import { toast } from 'sonner';
+import { TranslationKeys } from '@/lib/i18n';
 
 interface OTPVerificationProps {
   email: string;
   onSuccess: () => void;
+  t: TranslationKeys;
 }
 
-export default function OTPVerification({ email, onSuccess }: OTPVerificationProps) {
+export default function OTPVerification({ email, onSuccess, t }: OTPVerificationProps) {
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -53,7 +55,7 @@ export default function OTPVerification({ email, onSuccess }: OTPVerificationPro
   const handleVerify = async () => {
     const code = otp.join('');
     if (code.length !== 6) {
-      setError('Vui lòng nhập đầy đủ mã OTP 6 chữ số');
+      setError(t.otpVerification.errorIncomplete);
       return;
     }
     setIsLoading(true);
@@ -62,10 +64,10 @@ export default function OTPVerification({ email, onSuccess }: OTPVerificationPro
     await new Promise(r => setTimeout(r, 1200));
     if (code === '123456') {
       setIsSuccess(true);
-      toast.success('Email đã được xác minh thành công!');
+      toast.success(t.otpVerification.toastVerified);
       setTimeout(onSuccess, 1500);
     } else {
-      setError('Mã OTP không đúng. Vui lòng kiểm tra lại.');
+      setError(t.otpVerification.errorInvalid);
     }
     setIsLoading(false);
   };
@@ -77,7 +79,7 @@ export default function OTPVerification({ email, onSuccess }: OTPVerificationPro
     setCountdown(60);
     setOtp(['', '', '', '', '', '']);
     setError('');
-    toast.success('Mã OTP mới đã được gửi!');
+    toast.success(t.otpVerification.toastResent);
     setIsResending(false);
     inputRefs.current[0]?.focus();
   };
@@ -88,8 +90,8 @@ export default function OTPVerification({ email, onSuccess }: OTPVerificationPro
         <div className="w-16 h-16 bg-success-bg rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle size={32} className="text-success" />
         </div>
-        <h2 className="text-xl font-bold text-foreground mb-2">Email đã xác minh!</h2>
-        <p className="text-sm text-muted-foreground">Đang chuyển hướng đến trang đăng nhập...</p>
+        <h2 className="text-xl font-bold text-foreground mb-2">{t.otpVerification.verifiedTitle}</h2>
+        <p className="text-sm text-muted-foreground">{t.otpVerification.redirecting}</p>
       </div>
     );
   }
@@ -100,16 +102,16 @@ export default function OTPVerification({ email, onSuccess }: OTPVerificationPro
         <div className="w-14 h-14 bg-info-bg rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Mail size={26} className="text-primary" />
         </div>
-        <h1 className="text-2xl font-bold text-foreground mb-1">Xác Minh Email</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-1">{t.otpVerification.title}</h1>
         <p className="text-sm text-muted-foreground">
-          Chúng tôi đã gửi mã xác minh 6 chữ số đến
+          {t.otpVerification.bodyPrefix}
         </p>
         <p className="text-sm font-semibold text-foreground mt-0.5">{email}</p>
       </div>
 
       <div className="mb-2">
         <label className="block text-sm font-medium text-foreground mb-3 text-center">
-          Nhập mã OTP
+          {t.otpVerification.enterCode}
         </label>
         <div className="flex gap-2 justify-center" onPaste={handlePaste}>
           {otp.map((digit, index) => (
@@ -132,7 +134,7 @@ export default function OTPVerification({ email, onSuccess }: OTPVerificationPro
         {error && (
           <p role="alert" className="text-xs text-error mt-2 text-center">{error}</p>
         )}
-        <p className="text-xs text-muted-foreground text-center mt-2">Demo: nhập 123456</p>
+        <p className="text-xs text-muted-foreground text-center mt-2">{t.otpVerification.demoHint}</p>
       </div>
 
       <button
@@ -144,17 +146,17 @@ export default function OTPVerification({ email, onSuccess }: OTPVerificationPro
         {isLoading ? (
           <>
             <Loader2 size={17} className="animate-spin" />
-            Đang xác minh...
+            {t.otpVerification.verifying}
           </>
         ) : (
-          'Xác Minh Email'
+          t.otpVerification.verifyButton
         )}
       </button>
 
       <div className="text-center mt-4">
         {countdown > 0 ? (
           <p className="text-sm text-muted-foreground tab-number">
-            Gửi lại mã sau <span className="font-semibold text-foreground">{countdown}s</span>
+            {t.otpVerification.resendPrefix} <span className="font-semibold text-foreground">{countdown}s</span>
           </p>
         ) : (
           <button
@@ -162,7 +164,7 @@ export default function OTPVerification({ email, onSuccess }: OTPVerificationPro
             disabled={isResending}
             className="text-sm text-primary font-semibold hover:text-primary-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded disabled:opacity-60"
           >
-            {isResending ? 'Đang gửi...' : 'Gửi lại mã OTP'}
+            {isResending ? t.otpVerification.resending : t.otpVerification.resendButton}
           </button>
         )}
       </div>

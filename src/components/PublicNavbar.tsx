@@ -15,21 +15,21 @@ interface PublicNavbarProps {
 }
 
 export default function PublicNavbar({ language, onLanguageChange, t, isAuthenticated, activePage }: PublicNavbarProps) {
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(!false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // useEffect(() => {
+  //   const handleScroll = () => setIsScrolled(window.scrollY > 0);
+  //   window.addEventListener('scroll', handleScroll, { passive: true });
+  //   return () => window.removeEventListener('scroll', handleScroll);
+  // }, []);
 
   const navLinks = [
     { href: '/', label: t.navigation.home },
     { href: '/find-jobs-page', label: t.navigation.findJobs },
     { href: '#companies', label: t.navigation.companies },
-    { href: '#career-resources', label: t.navigation.careerResources },
-    { href: '#about', label: t.navigation.aboutUs },
+    // { href: '#career-resources', label: t.navigation.careerResources },
+    // { href: '#about', label: t.navigation.aboutUs },
   ];
 
   // COMPANY_SITE_URL — configurable via environment variable
@@ -37,17 +37,16 @@ export default function PublicNavbar({ language, onLanguageChange, t, isAuthenti
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-card shadow-sticky border-b border-border' : 'bg-transparent'
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-card shadow-sticky border-b border-border' : 'bg-transparent'
+        }`}
       role="banner"
     >
       <div className="max-w-screen-2xl mx-auto px-4 lg:px-8 xl:px-10">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md" aria-label="LamViec360 - Go to homepage">
-            <AppLogo src="/assets/images/lamviec-logo-none-1787565498437.png" size={36} />
-            <span className="font-bold text-lg text-foreground hidden sm:block">LamViec360</span>
+            <AppLogo src="/assets/images/lamviec-logo-none-1787565498437.png" size={40} width={138} />
+            {/* <span className="font-bold text-lg text-foreground hidden sm:block">LamViec360</span> */}
           </Link>
 
           {/* Desktop Nav */}
@@ -56,13 +55,12 @@ export default function PublicNavbar({ language, onLanguageChange, t, isAuthenti
               <Link
                 key={`nav-${link.href}`}
                 href={link.href}
-                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                  activePage === link.href
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${activePage === link.href
                     ? 'text-primary bg-info-bg'
                     : isScrolled
-                    ? 'text-foreground hover:text-primary hover:bg-muted'
-                    : 'text-white/90 hover:text-white hover:bg-white/10'
-                }`}
+                      ? 'text-foreground hover:text-primary hover:bg-muted'
+                      : 'text-white/90 hover:text-white hover:bg-white/10'
+                  }`}
               >
                 {link.label}
               </Link>
@@ -71,20 +69,7 @@ export default function PublicNavbar({ language, onLanguageChange, t, isAuthenti
 
           {/* Desktop Right Actions */}
           <div className="hidden lg:flex items-center gap-2">
-            <a
-              href={companySiteUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                isScrolled
-                  ? 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
-                  : 'border-white/40 text-white/80 hover:text-white hover:border-white/60'
-              }`}
-              aria-label="Go to Company Site"
-            >
-              {t.navigation.companySite}
-              <ExternalLink size={13} />
-            </a>
+
 
             <LanguageSelector currentLanguage={language} onLanguageChange={onLanguageChange} />
 
@@ -99,11 +84,10 @@ export default function PublicNavbar({ language, onLanguageChange, t, isAuthenti
               <>
                 <Link
                   href="/sign-up-login-screen"
-                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                    isScrolled
+                  className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isScrolled
                       ? 'text-foreground hover:text-primary'
                       : 'text-white/90 hover:text-white'
-                  }`}
+                    }`}
                 >
                   {t.authentication.login}
                 </Link>
@@ -115,6 +99,20 @@ export default function PublicNavbar({ language, onLanguageChange, t, isAuthenti
                 </Link>
               </>
             )}
+
+            <a
+              href={companySiteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-md border transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isScrolled
+                  ? 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
+                  : 'border-white/40 text-white/80 hover:text-white hover:border-white/60'
+                }`}
+              aria-label="Go to Company Site"
+            >
+              {t.navigation.companySite}
+              <ExternalLink size={13} />
+            </a>
           </div>
 
           {/* Mobile Right */}
@@ -122,9 +120,8 @@ export default function PublicNavbar({ language, onLanguageChange, t, isAuthenti
             <LanguageSelector currentLanguage={language} onLanguageChange={onLanguageChange} variant="minimal" />
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={`p-2 rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                isScrolled ? 'text-foreground hover:bg-muted' : 'text-white hover:bg-white/10'
-              }`}
+              className={`p-2 rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${isScrolled ? 'text-foreground hover:bg-muted' : 'text-white hover:bg-white/10'
+                }`}
               aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={isMobileMenuOpen}
             >

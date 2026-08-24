@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { MapPin, Briefcase, Clock, Bookmark, BookmarkCheck, DollarSign, Building2 } from 'lucide-react';
 import { Job } from '@/lib/mockData';
+import { TranslationKeys } from '@/lib/i18n';
 
 
 interface JobCardProps {
   job: Job;
+  t: TranslationKeys;
   variant?: 'default' | 'featured' | 'compact';
   showMatchPercent?: boolean;
 }
@@ -24,7 +26,7 @@ const companyColors: Record<string, string> = {
   'Vingroup': 'bg-emerald-100 text-emerald-700',
 };
 
-export default function JobCard({ job, variant = 'default', showMatchPercent }: JobCardProps) {
+export default function JobCard({ job, t, variant = 'default', showMatchPercent }: JobCardProps) {
   const [isSaved, setIsSaved] = useState(false);
   const initials = job.company.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
   const colorClass = companyColors[job.company] || 'bg-muted text-muted-foreground';
@@ -39,9 +41,9 @@ export default function JobCard({ job, variant = 'default', showMatchPercent }: 
     const posted = new Date(job.postedDate);
     const now = new Date('2026-08-24');
     const diff = Math.floor((now.getTime() - posted.getTime()) / (1000 * 60 * 60 * 24));
-    if (diff === 0) return 'Hôm nay';
-    if (diff === 1) return '1 ngày trước';
-    return `${diff} ngày trước`;
+    if (diff === 0) return t.jobCard.today;
+    if (diff === 1) return t.jobCard.oneDayAgo;
+    return t.jobCard.daysAgo(diff);
   };
 
   return (
@@ -51,7 +53,7 @@ export default function JobCard({ job, variant = 'default', showMatchPercent }: 
     >
       {job.isFeatured && (
         <span className="absolute top-3 right-3 text-xs font-semibold bg-warning-bg text-warning-foreground px-2 py-0.5 rounded-pill">
-          Nổi bật
+          {t.jobCard.featured}
         </span>
       )}
 
@@ -67,7 +69,7 @@ export default function JobCard({ job, variant = 'default', showMatchPercent }: 
               {showMatchPercent && job.matchPercent && (
                 <div className="flex items-center gap-1.5 mb-1">
                   <span className="text-xs font-bold text-success-foreground bg-success-bg px-2 py-0.5 rounded-pill">
-                    {job.matchPercent}% phù hợp
+                    {t.jobCard.matchLabel(job.matchPercent)}
                   </span>
                 </div>
               )}
@@ -80,7 +82,7 @@ export default function JobCard({ job, variant = 'default', showMatchPercent }: 
                 <Building2 size={12} className="text-muted-foreground flex-shrink-0" />
                 <span className="text-sm text-muted-foreground truncate">{job.company}</span>
                 {job.isVerified && (
-                  <span className="text-xs text-primary font-medium">✓ Đã xác minh</span>
+                  <span className="text-xs text-primary font-medium">✓ {t.jobCard.verified}</span>
                 )}
               </div>
             </div>
@@ -88,7 +90,7 @@ export default function JobCard({ job, variant = 'default', showMatchPercent }: 
             <button
               onClick={() => setIsSaved(!isSaved)}
               className="flex-shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-primary hover:bg-info-bg transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
-              aria-label={isSaved ? `Bỏ lưu ${job.title}` : `Lưu ${job.title}`}
+              aria-label={isSaved ? t.jobCard.unsaveJobAria(job.title) : t.jobCard.saveJobAria(job.title)}
             >
               {isSaved ? (
                 <BookmarkCheck size={18} className="text-primary animate-pulse-once" />
@@ -137,13 +139,13 @@ export default function JobCard({ job, variant = 'default', showMatchPercent }: 
                 href="/job-details-page"
                 className="px-3 py-1.5 text-xs font-semibold border border-border text-foreground hover:border-primary hover:text-primary rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                Xem chi tiết
+                {t.jobCard.viewDetails}
               </Link>
               <Link
                 href="/sign-up-login-screen"
                 className="px-3 py-1.5 text-xs font-semibold bg-primary text-primary-foreground rounded-md hover:bg-primary-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
               >
-                Ứng tuyển
+                {t.jobCard.apply}
               </Link>
             </div>
           </div>

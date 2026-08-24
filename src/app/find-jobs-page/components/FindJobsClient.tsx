@@ -82,8 +82,8 @@ export default function FindJobsClient() {
       {/* Page Header */}
       <div className="bg-primary pt-20 pb-8">
         <div className="max-w-screen-2xl mx-auto px-4 lg:px-8 xl:px-10">
-          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">Tìm Cơ Hội Tiếp Theo</h1>
-          <p className="text-white/70 text-sm">Khám phá hàng nghìn cơ hội việc làm phù hợp với bạn</p>
+          <h1 className="text-2xl lg:text-3xl font-bold text-white mb-2">{t.findJobs.heading}</h1>
+          <p className="text-white/70 text-sm">{t.findJobs.subheading}</p>
         </div>
       </div>
 
@@ -97,6 +97,7 @@ export default function FindJobsClient() {
             onKeywordChange={setKeyword}
             onLocationChange={setLocation}
             onCategoryChange={setCategory}
+            t={t}
           />
         </div>
       </div>
@@ -106,7 +107,7 @@ export default function FindJobsClient() {
           {/* Desktop Filter Sidebar */}
           <aside className="hidden lg:block w-64 xl:w-72 flex-shrink-0">
             <div className="sticky top-36">
-              <FilterPanel activeFilters={activeFilters} onFiltersChange={setActiveFilters} />
+              <FilterPanel activeFilters={activeFilters} onFiltersChange={setActiveFilters} t={t} />
             </div>
           </aside>
 
@@ -116,7 +117,7 @@ export default function FindJobsClient() {
             <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
               <div>
                 <span className="font-bold text-foreground text-lg tab-number">{filteredJobs.length.toLocaleString()}</span>
-                <span className="text-muted-foreground text-sm ml-1.5">việc làm tìm thấy</span>
+                <span className="text-muted-foreground text-sm ml-1.5">{t.findJobs.resultsFound}</span>
               </div>
               <div className="flex items-center gap-3">
                 {/* Mobile Filter Button */}
@@ -125,7 +126,7 @@ export default function FindJobsClient() {
                   className="lg:hidden flex items-center gap-2 px-3 py-2 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <SlidersHorizontal size={16} />
-                  Bộ lọc
+                  {t.findJobs.filtersButton}
                   {allFilterChips.length > 0 && (
                     <span className="w-5 h-5 bg-primary text-white text-xs rounded-full flex items-center justify-center">
                       {allFilterChips.length}
@@ -135,7 +136,7 @@ export default function FindJobsClient() {
 
                 {/* Sort */}
                 <div className="flex items-center gap-2">
-                  <label htmlFor="sort-select" className="text-sm text-muted-foreground hidden sm:block">Sắp xếp:</label>
+                  <label htmlFor="sort-select" className="text-sm text-muted-foreground hidden sm:block">{t.findJobs.sortBy}</label>
                   <div className="relative">
                     <select
                       id="sort-select"
@@ -143,10 +144,10 @@ export default function FindJobsClient() {
                       onChange={(e) => setSortBy(e.target.value as SortOption)}
                       className="appearance-none pl-3 pr-8 py-2 text-sm border border-border rounded-lg bg-card text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring cursor-pointer"
                     >
-                      <option value="relevance">Phù hợp nhất</option>
-                      <option value="newest">Mới nhất</option>
-                      <option value="salary-high">Lương cao nhất</option>
-                      <option value="salary-low">Lương thấp nhất</option>
+                      <option value="relevance">{t.findJobs.sortRelevant}</option>
+                      <option value="newest">{t.findJobs.sortNewest}</option>
+                      <option value="salary-high">{t.findJobs.sortSalaryHigh}</option>
+                      <option value="salary-low">{t.findJobs.sortSalaryLow}</option>
                     </select>
                     <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                   </div>
@@ -172,7 +173,7 @@ export default function FindJobsClient() {
                   onClick={() => setActiveFilters({ workMode: [], experience: [], salaryMin: 0, employmentType: [] })}
                   className="text-xs text-error hover:text-error-foreground font-medium px-2 py-1 rounded-pill transition-colors"
                 >
-                  Xóa tất cả
+                  {t.findJobs.clearAll}
                 </button>
               </div>
             )}
@@ -199,7 +200,7 @@ export default function FindJobsClient() {
             {!isLoading && paginatedJobs.length > 0 && (
               <div className="space-y-3">
                 {paginatedJobs.map((job) => (
-                  <JobCard key={job.id} job={job} />
+                  <JobCard key={job.id} job={job} t={t} />
                 ))}
               </div>
             )}
@@ -210,9 +211,9 @@ export default function FindJobsClient() {
                 <div className="w-16 h-16 bg-muted rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <SlidersHorizontal size={28} className="text-muted-foreground" />
                 </div>
-                <h3 className="font-bold text-foreground text-lg mb-2">Không tìm thấy việc làm phù hợp</h3>
+                <h3 className="font-bold text-foreground text-lg mb-2">{t.findJobs.emptyHeading}</h3>
                 <p className="text-sm text-muted-foreground mb-5 max-w-sm mx-auto">
-                  Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc để tìm thêm cơ hội.
+                  {t.findJobs.emptyBody}
                 </p>
                 <button
                   onClick={() => {
@@ -223,7 +224,7 @@ export default function FindJobsClient() {
                   }}
                   className="px-5 py-2.5 bg-primary text-white font-semibold rounded-lg hover:bg-primary-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-95"
                 >
-                  Xóa bộ lọc
+                  {t.findJobs.clearFilters}
                 </button>
               </div>
             )}
@@ -232,7 +233,7 @@ export default function FindJobsClient() {
             {!isLoading && totalPages > 1 && (
               <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
                 <p className="text-sm text-muted-foreground tab-number">
-                  Hiển thị {(currentPage - 1) * itemsPerPage + 1}–{Math.min(currentPage * itemsPerPage, filteredJobs.length)} trong {filteredJobs.length} kết quả
+                  {t.findJobs.showingResults((currentPage - 1) * itemsPerPage + 1, Math.min(currentPage * itemsPerPage, filteredJobs.length), filteredJobs.length)}
                 </p>
                 <div className="flex items-center gap-1">
                   <button
@@ -241,7 +242,7 @@ export default function FindJobsClient() {
                     className="px-3 py-2 text-sm border border-border rounded-lg text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     aria-label="Previous page"
                   >
-                    Trước
+                    {t.findJobs.previous}
                   </button>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                     <button
@@ -263,7 +264,7 @@ export default function FindJobsClient() {
                     className="px-3 py-2 text-sm border border-border rounded-lg text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     aria-label="Next page"
                   >
-                    Sau
+                    {t.findJobs.next}
                   </button>
                 </div>
               </div>
@@ -278,7 +279,7 @@ export default function FindJobsClient() {
           <div className="absolute inset-0 bg-foreground/50" onClick={() => setIsFilterOpen(false)} aria-hidden="true" />
           <div className="absolute bottom-0 left-0 right-0 bg-card rounded-t-2xl max-h-[85vh] overflow-y-auto animate-slide-up" role="dialog" aria-label="Job filters">
             <div className="flex items-center justify-between p-4 border-b border-border sticky top-0 bg-card">
-              <h2 className="font-bold text-foreground">Bộ Lọc</h2>
+              <h2 className="font-bold text-foreground">{t.filterPanel.title}</h2>
               <button
                 onClick={() => setIsFilterOpen(false)}
                 className="p-2 rounded-md text-muted-foreground hover:bg-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -288,21 +289,21 @@ export default function FindJobsClient() {
               </button>
             </div>
             <div className="p-4">
-              <FilterPanel activeFilters={activeFilters} onFiltersChange={setActiveFilters} />
+              <FilterPanel activeFilters={activeFilters} onFiltersChange={setActiveFilters} t={t} />
             </div>
             <div className="p-4 border-t border-border sticky bottom-0 bg-card">
               <button
                 onClick={() => setIsFilterOpen(false)}
                 className="w-full py-3 bg-primary text-white font-semibold rounded-xl hover:bg-primary-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                Áp dụng bộ lọc ({filteredJobs.length} kết quả)
+                {t.findJobs.applyFilters(filteredJobs.length)}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <PublicFooter />
+      <PublicFooter t={t} />
     </div>
   );
 }
