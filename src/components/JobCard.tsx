@@ -48,22 +48,22 @@ export default function JobCard({ job, t, variant = 'default', showMatchPercent 
 
   return (
     <article
-      className="bg-card border border-border rounded-xl p-5 card-hover group relative"
+      className="bg-card border border-border rounded-xl p-5 card-hover group relative h-full flex flex-col"
       aria-label={`Job: ${job.title} at ${job.company}`}
     >
       {job.isFeatured && (
-        <span className="absolute top-3 right-3 text-xs font-semibold bg-warning-bg text-warning-foreground px-2 py-0.5 rounded-pill">
+        <span className="inline-block self-start text-xs font-semibold bg-warning-bg text-warning-foreground px-2 py-0.5 rounded-pill mb-2">
           {t.jobCard.featured}
         </span>
       )}
 
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 flex-1">
         {/* Company Logo */}
         <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 ${colorClass}`}>
           {initials}
         </div>
 
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 flex flex-col h-full">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               {showMatchPercent && job.matchPercent && (
@@ -129,7 +129,7 @@ export default function JobCard({ job, t, variant = 'default', showMatchPercent 
             ))}
           </div>
 
-          <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
+          <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock size={12} />
               <span>{postedDaysAgo()}</span>
