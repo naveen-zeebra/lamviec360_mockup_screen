@@ -129,7 +129,7 @@ export default function JobCard({ job, t, variant = 'default', showMatchPercent 
             ))}
           </div>
 
-          <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
+          <div className="flex items-center justify-between mt-auto pt-3 ">
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
               <Clock size={12} />
               <span>{postedDaysAgo()}</span>
