@@ -10,6 +10,14 @@ import { useLang, t } from "../../../utils/lang";
 import { JOBS, FILTER_VI } from "../../../lib/data";
 import { getProfile, listApplications, listSavedJobs, listNotifications, computeCompleteness } from "../../../lib/seekerStore";
 
+const PAGE = "mx-auto max-w-[1200px] px-6 pb-24 pt-10 max-md:px-4 max-md:pb-12 max-md:pt-7";
+const STAT = "flex flex-col gap-1 rounded-md bg-sunken p-4";
+const SECTION_HEAD = "mb-4 flex items-center justify-between";
+const SECTION_H2 = "text-lg font-bold";
+const VIEW_LINK = "flex items-center gap-1 text-sm font-semibold no-underline";
+const ROW = "flex items-center gap-3 rounded-md border border-line p-2.5 text-inherit no-underline";
+const EMPTY = "rounded-lg border border-dashed border-line bg-card px-6 py-14 text-center text-muted [&_h3]:mb-2 [&_h3]:text-lg";
+
 function useDashboardData() {
   const [state, setState] = useState({ loading: true, error: false, data: null });
 
@@ -42,7 +50,7 @@ export default function DashboardClient() {
 
   if (error) {
     return (
-      <div className="lv-page-container">
+      <div className={PAGE}>
         <ErrorState title={t(lang, "Couldn't load your dashboard")} desc={t(lang, "Something went wrong reading your saved data.")} onRetry={reload} retryLabel={t(lang, "Try again")} />
       </div>
     );
@@ -50,10 +58,10 @@ export default function DashboardClient() {
 
   if (loading) {
     return (
-      <div className="lv-page-container">
-        <div className="lv-preview-stats" style={{ marginBottom: 24 }}>
+      <div className={PAGE}>
+        <div className="mb-6 grid grid-cols-4 gap-3 max-lg:grid-cols-2">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="lv-stat">
+            <div key={i} className={STAT}>
               <Skeleton width={60} height={12} />
               <Skeleton width={40} height={26} style={{ marginTop: 8 }} />
             </div>
@@ -68,42 +76,46 @@ export default function DashboardClient() {
   const { profile, applications, savedJobs, notifications, completeness, recommended } = data;
   const interviews = applications.filter((a) => a.stage === "Interview Scheduled");
   const unreadCount = notifications.filter((n) => !n.read).length;
+  const isVi = lang === "VN" || lang === "VI";
 
   return (
-    <div className="lv-page-container">
-      <div className="lv-dash-welcome">
-        <h1>{t(lang, "Welcome back")}{profile.personal.fullName ? `, ${profile.personal.fullName.split(" ")[0]}` : ""}</h1>
-        <p>{t(lang, "Here's what's happening with your job search.")}</p>
+    <div className={PAGE}>
+      <div className="mb-7">
+        <h1 className="mb-1.5 text-2xl font-extrabold">
+          {t(lang, "Welcome back")}
+          {profile.personal.fullName ? `, ${profile.personal.fullName.split(" ")[0]}` : ""}
+        </h1>
+        <p className="text-base text-muted">{t(lang, "Here's what's happening with your job search.")}</p>
       </div>
 
-      <div className="lv-preview-stats lv-dash-kpis">
-        <div className="lv-stat">
-          <span>{t(lang, "Recommended Jobs")}</span>
-          <strong>{recommended.length}</strong>
+      <div className="mb-6 grid grid-cols-4 gap-3 max-lg:grid-cols-2">
+        <div className={STAT}>
+          <span className="text-xs text-faint">{t(lang, "Recommended Jobs")}</span>
+          <strong className="text-2xl leading-[1.1] font-bold">{recommended.length}</strong>
         </div>
-        <div className="lv-stat">
-          <span>{t(lang, "Applications")}</span>
-          <strong>{applications.length}</strong>
+        <div className={STAT}>
+          <span className="text-xs text-faint">{t(lang, "Applications")}</span>
+          <strong className="text-2xl leading-[1.1] font-bold">{applications.length}</strong>
         </div>
-        <div className="lv-stat">
-          <span>{t(lang, "Interviews")}</span>
-          <strong>{interviews.length}</strong>
+        <div className={STAT}>
+          <span className="text-xs text-faint">{t(lang, "Interviews")}</span>
+          <strong className="text-2xl leading-[1.1] font-bold">{interviews.length}</strong>
         </div>
-        <div className="lv-stat">
-          <span>{t(lang, "Saved Jobs")}</span>
-          <strong>{savedJobs.length}</strong>
+        <div className={STAT}>
+          <span className="text-xs text-faint">{t(lang, "Saved Jobs")}</span>
+          <strong className="text-2xl leading-[1.1] font-bold">{savedJobs.length}</strong>
         </div>
       </div>
 
       {completeness < 100 && (
-        <div className="lv-completion-banner">
-          <div style={{ flex: 1, minWidth: 200 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+        <div className="mb-8 flex flex-wrap items-center gap-5 rounded-lg border border-line bg-card p-5">
+          <div className="min-w-[200px] flex-1">
+            <div className="mb-2 flex justify-between">
               <strong>{t(lang, "Profile Completion")}</strong>
               <span>{completeness}%</span>
             </div>
-            <div className="lv-progress">
-              <i style={{ width: `${completeness}%` }} />
+            <div className="h-2 overflow-hidden rounded-pill bg-sunken">
+              <i className="block h-full rounded-pill bg-brand" style={{ width: `${completeness}%` }} />
             </div>
           </div>
           <Link href="/settings">
@@ -114,56 +126,56 @@ export default function DashboardClient() {
         </div>
       )}
 
-      <section id="recommended" className="lv-dash-section">
-        <div className="lv-dash-section-head">
-          <h2>{t(lang, "Recommended for you")}</h2>
-          <Link href="/jobs" className="lv-job-view">
+      <section id="recommended" className="mb-8">
+        <div className={SECTION_HEAD}>
+          <h2 className={SECTION_H2}>{t(lang, "Recommended for you")}</h2>
+          <Link href="/jobs" className={VIEW_LINK}>
             {t(lang, "View all")} <Icon name="arrow-right" size={14} />
           </Link>
         </div>
         {recommended.length ? (
-          <div className="lv-dash-cards-grid">
+          <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
             {recommended.map((j) => (
-              <Link key={j.id} href={`/job-detail?id=${j.id}`} className="lv-mini-job-card">
-                <div className="lv-job-logo" style={{ width: 36, height: 36, fontSize: 12 }}>
+              <Link key={j.id} href={`/job-detail?id=${j.id}`} className="flex items-center gap-3 rounded-md border border-line bg-card p-3.5 text-inherit no-underline hover:shadow-sm hover:no-underline">
+                <div className="flex h-9 w-9 items-center justify-center rounded-md bg-blue-600 text-xs font-bold text-white">
                   {j.company.slice(0, 2).toUpperCase()}
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <strong style={{ display: "block", fontSize: "var(--text-sm)" }}>{lang === "VN" || lang === "VI" ? j.titleVi : j.title}</strong>
-                  <span style={{ fontSize: 12, color: "var(--text-tertiary)" }}>{j.company} · {lang === "VN" || lang === "VI" ? j.locationVi : j.location}</span>
+                <div className="min-w-0 flex-1">
+                  <strong className="block text-sm">{isVi ? j.titleVi : j.title}</strong>
+                  <span className="text-xs text-faint">{j.company} · {isVi ? j.locationVi : j.location}</span>
                 </div>
               </Link>
             ))}
           </div>
         ) : (
-          <div className="lv-empty">
+          <div className={EMPTY}>
             <h3>{t(lang, "No recommendations yet")}</h3>
             <p>{t(lang, "Complete your profile so we can match you with relevant jobs.")}</p>
           </div>
         )}
       </section>
 
-      <div className="lv-dash-two-col">
-        <section className="lv-dash-section">
-          <div className="lv-dash-section-head">
-            <h2>{t(lang, "Recent Applications")}</h2>
-            <Link href="/applications" className="lv-job-view">
+      <div className="grid grid-cols-2 gap-8 max-lg:grid-cols-1">
+        <section className="mb-8">
+          <div className={SECTION_HEAD}>
+            <h2 className={SECTION_H2}>{t(lang, "Recent Applications")}</h2>
+            <Link href="/applications" className={VIEW_LINK}>
               {t(lang, "View all")} <Icon name="arrow-right" size={14} />
             </Link>
           </div>
           {applications.length ? (
-            <div className="lv-dash-list">
+            <div className="flex flex-col gap-2.5">
               {applications.slice(0, 4).map((a) => {
                 const job = JOBS.find((j) => j.id === a.jobId);
                 if (!job) return null;
                 return (
-                  <Link key={a.id} href={`/applications/${a.id}`} className="lv-dash-row">
-                    <div className="lv-job-logo" style={{ width: 36, height: 36, fontSize: 12 }}>
+                  <Link key={a.id} href={`/applications/${a.id}`} className={ROW}>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-md bg-blue-600 text-xs font-bold text-white">
                       {job.company.slice(0, 2).toUpperCase()}
                     </div>
-                    <div className="lv-dash-row-info">
-                      <strong>{lang === "VN" || lang === "VI" ? job.titleVi : job.title}</strong>
-                      <span>{job.company} · {a.appliedDate}</span>
+                    <div className="flex flex-1 flex-col">
+                      <strong className="text-[13px]">{isVi ? job.titleVi : job.title}</strong>
+                      <span className="text-xs text-faint">{job.company} · {a.appliedDate}</span>
                     </div>
                     <StageBadge stage={a.stage} lang={lang} />
                   </Link>
@@ -171,10 +183,10 @@ export default function DashboardClient() {
               })}
             </div>
           ) : (
-            <div className="lv-empty">
+            <div className={EMPTY}>
               <h3>{t(lang, "No applications yet")}</h3>
               <p>{t(lang, "Find a role you like and apply in a few clicks.")}</p>
-              <div style={{ marginTop: 16 }}>
+              <div className="mt-4">
                 <Link href="/jobs">
                   <Button variant="secondary">{t(lang, "Find Jobs")}</Button>
                 </Link>
@@ -183,55 +195,55 @@ export default function DashboardClient() {
           )}
         </section>
 
-        <section className="lv-dash-section">
-          <div className="lv-dash-section-head">
-            <h2>{t(lang, "Upcoming Interviews")}</h2>
+        <section className="mb-8">
+          <div className={SECTION_HEAD}>
+            <h2 className={SECTION_H2}>{t(lang, "Upcoming Interviews")}</h2>
           </div>
           {interviews.length ? (
-            <div className="lv-dash-list">
+            <div className="flex flex-col gap-2.5">
               {interviews.map((a) => {
                 const job = JOBS.find((j) => j.id === a.jobId);
                 if (!job) return null;
                 return (
-                  <div key={a.id} className="lv-dash-row">
-                    <div className="lv-interview-date">
+                  <div key={a.id} className={ROW}>
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-brand-subtle text-brand">
                       <Icon name="calendar" size={16} />
                     </div>
-                    <div className="lv-dash-row-info">
-                      <strong>{lang === "VN" || lang === "VI" ? job.titleVi : job.title}</strong>
-                      <span>{job.company} · {a.interviewAt || a.appliedDate}</span>
+                    <div className="flex flex-1 flex-col">
+                      <strong className="text-[13px]">{isVi ? job.titleVi : job.title}</strong>
+                      <span className="text-xs text-faint">{job.company} · {a.interviewAt || a.appliedDate}</span>
                     </div>
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="lv-empty">
+            <div className={EMPTY}>
               <h3>{t(lang, "No interviews scheduled")}</h3>
               <p>{t(lang, "Interview invitations will appear here.")}</p>
             </div>
           )}
 
-          <div className="lv-dash-section-head" style={{ marginTop: 28 }}>
-            <h2>{t(lang, "Notifications")}</h2>
-            <Link href="/notifications" className="lv-job-view">
+          <div className={`${SECTION_HEAD} mt-7`}>
+            <h2 className={SECTION_H2}>{t(lang, "Notifications")}</h2>
+            <Link href="/notifications" className={VIEW_LINK}>
               {unreadCount > 0 ? `${unreadCount} ${t(lang, "new")}` : t(lang, "View all")} <Icon name="arrow-right" size={14} />
             </Link>
           </div>
           {notifications.length ? (
-            <div className="lv-dash-list">
+            <div className="flex flex-col">
               {notifications.slice(0, 3).map((n) => (
-                <div key={n.id} className="lv-notif-row-mini">
-                  {!n.read && <span className="lv-notif-dot" aria-label={t(lang, "Unread")} />}
+                <div key={n.id} className="flex items-start gap-2.5 border-b border-line py-2.5 last:border-0">
+                  {!n.read && <span className="mt-[5px] h-2 w-2 flex-shrink-0 rounded-full bg-blue-600" aria-label={t(lang, "Unread")} />}
                   <div>
-                    <strong>{n.title}</strong>
-                    <p>{n.message}</p>
+                    <strong className="block text-[13px]">{n.title}</strong>
+                    <p className="mt-0.5 text-xs text-faint">{n.message}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="lv-empty">
+            <div className={EMPTY}>
               <h3>{t(lang, "No notifications")}</h3>
             </div>
           )}

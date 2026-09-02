@@ -1,6 +1,6 @@
 import "./globals.css";
-import PwaRegister from "../components/PwaRegister";
-import PwaInstallBanner from "../components/PwaInstallBanner";
+// import PwaRegister from "../components/PwaRegister";
+// import PwaInstallBanner from "../components/PwaInstallBanner";
 
 export const metadata = {
   title: "LàmViệc360 | Find Jobs & Hire Talent in Vietnam",
@@ -40,8 +40,8 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         {children}
-        <PwaRegister />
-        <PwaInstallBanner />
+        {/* <PwaRegister /> */}
+        {/* <PwaInstallBanner /> */}
       </body>
     </html>
   );

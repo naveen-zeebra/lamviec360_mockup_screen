@@ -3,26 +3,17 @@ import { useState } from "react";
 
 export default function Input({ label, placeholder, type = "text", value, onChange, error, icon, iconRight, onIconRightClick, size = "md" }) {
   const [focused, setFocused] = useState(false);
-  const pad = size === "sm" ? "8px 12px" : "11px 14px";
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px", fontFamily: "var(--font-body)" }}>
-      {label && (
-        <label style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--text-primary)" }}>{label}</label>
-      )}
+    <div className="flex flex-col gap-1.5 font-body">
+      {label && <label className="text-sm font-semibold text-ink">{label}</label>}
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          padding: pad,
-          borderRadius: "var(--radius-md)",
-          border: "1.5px solid " + (error ? "var(--color-error)" : focused ? "var(--border-focus)" : "var(--border-default)"),
-          background: "var(--surface-card)",
-          boxShadow: focused ? "var(--focus-ring)" : "none",
-          transition: "box-shadow var(--duration-fast)",
-        }}
+        className={[
+          "flex items-center gap-2 rounded-md border-[1.5px] bg-card transition-shadow",
+          size === "sm" ? "px-3 py-2" : "px-3.5 py-[11px]",
+          error ? "border-danger" : focused ? "border-line-brand ring-[3px] ring-blue-100" : "border-line",
+        ].join(" ")}
       >
-        {icon && <img src={icon} alt="" style={{ width: 16, height: 16, opacity: 0.6 }} />}
+        {icon && <img src={icon} alt="" className="h-4 w-4 opacity-60" />}
         <input
           type={type}
           placeholder={placeholder}
@@ -30,23 +21,15 @@ export default function Input({ label, placeholder, type = "text", value, onChan
           onChange={onChange}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          style={{
-            border: "none",
-            outline: "none",
-            flex: 1,
-            fontSize: "var(--text-base)",
-            fontFamily: "var(--font-body)",
-            background: "transparent",
-            color: "var(--text-primary)",
-          }}
+          className="flex-1 border-none bg-transparent font-body text-base text-ink outline-none"
         />
         {iconRight && (
-          <span style={{ cursor: "pointer", display: "flex", alignItems: "center" }} onClick={onIconRightClick}>
+          <span className="flex cursor-pointer items-center" onClick={onIconRightClick}>
             {iconRight}
           </span>
         )}
       </div>
-      {error && <span style={{ fontSize: "var(--text-xs)", color: "var(--color-error)" }}>{error}</span>}
+      {error && <span className="text-xs text-danger">{error}</span>}
     </div>
   );
 }

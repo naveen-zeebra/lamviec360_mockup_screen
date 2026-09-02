@@ -1,27 +1,20 @@
 const TONES = {
-  neutral: { bg: "var(--gray-100)", fg: "var(--text-secondary)" },
-  brand: { bg: "var(--surface-brand-subtle)", fg: "var(--text-brand)" },
-  success: { bg: "var(--color-success-bg)", fg: "var(--color-success-text)" },
-  warning: { bg: "var(--color-warning-bg)", fg: "var(--color-warning-text)" },
-  error: { bg: "var(--color-error-bg)", fg: "var(--color-error-text)" },
+  neutral: "bg-gray-100 text-muted",
+  brand: "bg-brand-subtle text-brand",
+  success: "bg-success-bg text-success-fg",
+  warning: "bg-warning-bg text-warning-fg",
+  error: "bg-danger-bg text-danger-fg",
 };
 
-export default function Badge({ tone = "neutral", children }) {
-  const t = TONES[tone] || TONES.neutral;
+export default function Badge({ tone = "neutral", children, className = "" }) {
   return (
     <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        fontFamily: "var(--font-body)",
-        fontWeight: 600,
-        fontSize: "var(--text-xs)",
-        padding: "3px 10px",
-        borderRadius: "var(--radius-pill)",
-        background: t.bg,
-        color: t.fg,
-        letterSpacing: "var(--tracking-wide)",
-      }}
+      className={[
+        "inline-flex items-center gap-1 rounded-pill px-2.5 py-[3px]",
+        "font-body text-xs font-semibold tracking-[0.02em]",
+        TONES[tone] || TONES.neutral,
+        className,
+      ].join(" ")}
     >
       {children}
     </span>

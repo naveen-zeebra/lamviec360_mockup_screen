@@ -84,28 +84,30 @@ export default function Footer({ lang, setLang, app = "seeker" }) {
         },
       ];
 
+  const isVi = lang === "VN" || lang === "VI";
+
   return (
-    <footer className="lv-footer">
-      <div className="lv-footer-inner">
-        <div className="lv-footer-brand">
-          <img src="/logo-cropped.png" alt="LàmViệc360" className="lv-footer-logo" />
-          <p>{t(lang, "Connecting Talent with Opportunity.")}</p>
-          <Link href={emp ? "/" : "/employers"} className="lv-footer-switch">
+    <footer className="bg-gray-900 px-6 pb-8 pt-16 text-white/65">
+      <div className="mx-auto grid max-w-[1200px] grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-8 max-lg:grid-cols-3 max-md:grid-cols-1">
+        <div>
+          <img src="/logo-cropped.png" alt="LàmViệc360" className="block h-[26px] w-auto rounded-sm bg-card px-2 py-1" />
+          <p className="mt-3 text-sm text-white/50">{t(lang, "Connecting Talent with Opportunity.")}</p>
+          <Link href={emp ? "/" : "/employers"} className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-blue-300 no-underline hover:no-underline">
             {emp ? t(lang, "Looking for a job?") : t(lang, "Are you hiring?")} <Icon name="arrow-right" size={14} />
           </Link>
         </div>
         {cols.map((c) => (
-          <div key={c.t[1]} className="lv-footer-col">
-            <h4>{(lang === "VN" || lang === "VI" ? c.t[0] : c.t[1])}</h4>
+          <div key={c.t[1]}>
+            <h4 className="mb-4 text-sm font-semibold text-white">{isVi ? c.t[0] : c.t[1]}</h4>
             {c.links.map(([lbl, href]) => (
-              <Link key={lbl[1]} href={href}>
-                {(lang === "VN" || lang === "VI" ? lbl[0] : lbl[1])}
+              <Link key={lbl[1]} href={href} className="mb-2.5 block text-sm text-white/60 no-underline hover:text-white hover:no-underline">
+                {isVi ? lbl[0] : lbl[1]}
               </Link>
             ))}
           </div>
         ))}
       </div>
-      <div className="lv-footer-lang">
+      <div className="mx-auto mt-10 flex max-w-[1200px] flex-wrap gap-5 border-t border-white/10 pt-6 text-sm">
         {LANGS.map((l) => (
           <a
             key={l.code}
@@ -114,13 +116,13 @@ export default function Footer({ lang, setLang, app = "seeker" }) {
               e.preventDefault();
               setLang && setLang(l.code);
             }}
-            style={{ color: lang === l.code ? "var(--text-inverse)" : undefined, fontWeight: lang === l.code ? 700 : 400 }}
+            className={`no-underline hover:text-white ${lang === l.code ? "font-bold text-white" : "font-normal text-white/60"}`}
           >
             {l.label}
           </a>
         ))}
       </div>
-      <div className="lv-footer-bottom">{t(lang, "© LàmViệc360. All rights reserved.")}</div>
+      <div className="mx-auto mt-6 max-w-[1200px] text-xs text-white/40">{t(lang, "© LàmViệc360. All rights reserved.")}</div>
     </footer>
   );
 }

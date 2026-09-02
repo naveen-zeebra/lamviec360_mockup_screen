@@ -26,7 +26,15 @@ export default function Reveal({ children, as: As = "div", style, className = ""
   }, []);
 
   return (
-    <As ref={ref} className={`reveal ${hidden ? "reveal-hidden" : ""} ${className}`} style={style}>
+    <As
+      ref={ref}
+      style={style}
+      className={[
+        "transition-[opacity,transform] duration-[600ms] ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
+        hidden ? "translate-y-[18px] opacity-0" : "translate-y-0 opacity-100",
+        className,
+      ].join(" ")}
+    >
       {children}
     </As>
   );

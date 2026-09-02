@@ -1,16 +1,16 @@
 "use client";
 
 const SIZES = {
-  sm: { padding: "6px 14px", fontSize: "var(--text-sm)" },
-  md: { padding: "10px 20px", fontSize: "var(--text-base)" },
-  lg: { padding: "13px 26px", fontSize: "var(--text-md)" },
+  sm: "px-3.5 py-1.5 text-sm gap-1.5",
+  md: "px-5 py-2.5 text-base gap-2",
+  lg: "px-6 py-3 text-md gap-2",
 };
 
 const VARIANTS = {
-  primary: { background: "var(--surface-brand)", color: "var(--text-inverse)", border: "1px solid transparent" },
-  secondary: { background: "var(--surface-card)", color: "var(--text-brand)", border: "1.5px solid var(--border-brand)" },
-  ghost: { background: "transparent", color: "var(--text-primary)", border: "1px solid transparent" },
-  danger: { background: "var(--color-error)", color: "var(--text-inverse)", border: "1px solid transparent" },
+  primary: "bg-brand text-on-brand border border-transparent hover:bg-brand-hover",
+  secondary: "bg-card text-brand border-[1.5px] border-line-brand hover:bg-brand-subtle",
+  ghost: "bg-transparent text-ink border border-transparent hover:bg-sunken",
+  danger: "bg-danger text-on-brand border border-transparent hover:brightness-95",
 };
 
 export default function Button({
@@ -22,19 +22,14 @@ export default function Button({
   children,
   onClick,
   type = "button",
+  className = "",
   style,
 }) {
-  const v = VARIANTS[variant] || VARIANTS.primary;
-  const s = SIZES[size] || SIZES.md;
   const iconEl = icon ? (
     <img
       src={icon}
       alt=""
-      style={{
-        width: 16,
-        height: 16,
-        filter: variant === "primary" || variant === "danger" ? "invert(1) brightness(2)" : "none",
-      }}
+      className={`h-4 w-4 ${variant === "primary" || variant === "danger" ? "invert brightness-200" : ""}`}
     />
   ) : null;
   return (
@@ -42,20 +37,16 @@ export default function Button({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      style={{
-        fontFamily: "var(--font-body)",
-        fontWeight: 600,
-        borderRadius: "var(--radius-md)",
-        cursor: disabled ? "not-allowed" : "pointer",
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "8px",
-        transition: "background var(--duration-fast) var(--ease-standard), opacity var(--duration-fast)",
-        opacity: disabled ? 0.5 : 1,
-        ...v,
-        ...s,
-        ...style,
-      }}
+      style={style}
+      className={[
+        "inline-flex items-center justify-center rounded-md font-semibold font-body",
+        "transition-[background,opacity,filter] duration-150",
+        "disabled:cursor-not-allowed disabled:opacity-50",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-brand",
+        SIZES[size] || SIZES.md,
+        VARIANTS[variant] || VARIANTS.primary,
+        className,
+      ].join(" ")}
     >
       {icon && iconPosition === "left" ? iconEl : null}
       {children}

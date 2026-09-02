@@ -7,44 +7,33 @@ export default function NaukriShell({ lang, setLang, app, title, bullets, ctaTex
   return (
     <>
       <Header lang={lang} setLang={setLang} app={app} />
-      <main className="lv-login-wrap">
-        <div className="lv-login-container">
-          {/* Left Panel */}
-          <div className="lv-login-left">
-            <h2>{title}</h2>
-            <ul>
+      <main className="flex min-h-[calc(100vh-72px)] items-center justify-center bg-[#f8f9fa] px-6 py-[60px]">
+        <div className="flex w-full max-w-[950px] items-center max-md:flex-col">
+          {/* Left panel */}
+          <div className="flex min-h-[450px] flex-1 flex-col rounded-l-xl bg-white p-12 shadow-[0_4px_6px_rgba(0,0,0,0.02)] max-md:hidden">
+            <h2 className="mb-6 text-2xl font-bold text-ink">{title}</h2>
+            <ul className="m-0 mb-8 flex list-none flex-col gap-4 p-0">
               {bullets.map((p, i) => (
-                <li key={i}>
-                  <Icon name="check" size={20} />
+                <li key={i} className="flex items-center gap-3 text-[15px] text-gray-700">
+                  <Icon name="check" size={20} style={{ color: "#10b981" }} />
                   <span>{p}</span>
                 </li>
               ))}
             </ul>
-            <Link 
-              href={ctaHref} 
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "10px 24px",
-                border: "1px solid #d1d5db",
-                borderRadius: "8px",
-                color: "#4f46e5",
-                fontWeight: 600,
-                width: "fit-content",
-                background: "#fff"
-              }}
+            <Link
+              href={ctaHref}
+              className="inline-flex w-fit items-center justify-center rounded-lg border border-line bg-white px-6 py-2.5 font-semibold text-[#4f46e5] no-underline"
             >
               {ctaText}
             </Link>
-            <div style={{ flex: 1 }} />
-            <div style={{ textAlign: "center", opacity: 0.8 }}>
-              <img src="/logo-cropped.png" alt="Logo" style={{ height: 60, opacity: 0.1, objectFit: "contain" }} />
+            <div className="flex-1" />
+            <div className="text-center opacity-80">
+              <img src="/logo-cropped.png" alt="Logo" className="h-[60px] object-contain opacity-10" />
             </div>
           </div>
 
-          {/* Right Form Panel */}
-          <div className="lv-login-right">
+          {/* Right form panel */}
+          <div className="z-10 w-[420px] rounded-xl bg-white p-10 shadow-[0_10px_25px_rgba(0,0,0,0.1)] max-md:-ml-0 max-md:w-full md:-ml-6">
             {children}
           </div>
         </div>

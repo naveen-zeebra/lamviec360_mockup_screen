@@ -1,21 +1,15 @@
 export default function Select({ label, options = [], value, onChange, placeholder = "Chọn..." }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "6px", fontFamily: "var(--font-body)" }}>
-      {label && (
-        <label style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--text-primary)" }}>{label}</label>
-      )}
+    <div className="flex flex-col gap-1.5 font-body">
+      {label && <label className="text-sm font-semibold text-ink">{label}</label>}
       <select
         value={value}
         onChange={onChange}
-        style={{
-          padding: "11px 14px",
-          borderRadius: "var(--radius-md)",
-          border: "1.5px solid var(--border-default)",
-          background: "var(--surface-card)",
-          fontSize: "var(--text-base)",
-          color: value ? "var(--text-primary)" : "var(--text-tertiary)",
-          fontFamily: "var(--font-body)",
-        }}
+        className={[
+          "rounded-md border-[1.5px] border-line bg-card px-3.5 py-[11px] font-body text-base",
+          "focus:border-line-brand focus:outline-none focus:ring-[3px] focus:ring-blue-100",
+          value ? "text-ink" : "text-faint",
+        ].join(" ")}
       >
         <option value="">{placeholder}</option>
         {options.map((o, i) => (

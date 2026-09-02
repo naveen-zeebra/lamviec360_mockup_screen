@@ -1,13 +1,16 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "../../../components/ds";
 import Icon from "../../../components/ds/Icon";
 import { useLang, t } from "../../../utils/lang";
 import Toast, { useToast } from "../../../components/ds/Toast";
 import NaukriShell from "../../../components/auth/NaukriShell";
+import { login } from "../../../lib/companyStore";
 
 export default function EmployerLoginClient() {
   const [lang, setLang] = useLang();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -35,7 +38,9 @@ export default function EmployerLoginClient() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            setToast(t(lang, "Prototype only — no real accounts yet"));
+            login();
+            setToast(t(lang, "Signing you in…"));
+            setTimeout(() => router.push("/company/overview"), 600);
           }}
         >
           <div style={{ marginBottom: 16 }}>

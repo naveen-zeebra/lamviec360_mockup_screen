@@ -9,7 +9,7 @@ export default function SeekerShell({ children }) {
   return (
     <>
       <SeekerHeader lang={lang} setLang={setLang} />
-      <main className="lv-seeker-main">{children}</main>
+      <main className="min-h-[60vh] max-md:pb-16">{children}</main>
       <Footer lang={lang} setLang={setLang} app="seeker" />
       <SeekerBottomNav lang={lang} />
     </>

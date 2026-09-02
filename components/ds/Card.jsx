@@ -1,25 +1,15 @@
 "use client";
 
-export default function Card({ children, padding = "20px", hoverable = false, style }) {
+export default function Card({ children, className = "", hoverable = false, style }) {
   return (
     <div
-      style={{
-        background: "var(--surface-card)",
-        border: "1px solid var(--border-default)",
-        borderRadius: "var(--radius-lg)",
-        boxShadow: "var(--shadow-sm)",
-        padding,
-        transition: "box-shadow var(--duration-normal) var(--ease-standard), transform var(--duration-normal)",
-        cursor: hoverable ? "pointer" : "default",
-        ...style,
-      }}
-      onMouseEnter={
-        hoverable
-          ? (e) => {
-              e.currentTarget.style.boxShadow = "var(--shadow-md)";
-            }
-          : undefined
-      }
+      style={style}
+      className={[
+        "rounded-lg border border-line bg-card p-5 shadow-sm",
+        "transition-[box-shadow,transform] duration-[180ms]",
+        hoverable ? "cursor-pointer hover:shadow-md" : "",
+        className,
+      ].join(" ")}
     >
       {children}
     </div>

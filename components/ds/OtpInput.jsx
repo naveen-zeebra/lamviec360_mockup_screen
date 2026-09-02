@@ -27,12 +27,12 @@ export default function OtpInput({ length = 6, value, onChange }) {
   };
 
   return (
-    <div className="lv-otp" onPaste={onPaste}>
+    <div className="flex justify-center gap-2.5" onPaste={onPaste}>
       {digits.map((d, i) => (
         <input
           key={i}
           ref={(el) => (refs.current[i] = el)}
-          className="lv-otp-box"
+          className="h-[52px] w-11 rounded-md border-[1.5px] border-line text-center font-mono text-lg font-bold focus:border-line-brand focus:outline-none focus:ring-[3px] focus:ring-blue-100 max-sm:h-[46px] max-sm:w-[38px]"
           inputMode="numeric"
           maxLength={1}
           value={d}
