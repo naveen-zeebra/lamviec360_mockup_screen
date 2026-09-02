@@ -1,13 +1,16 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Input } from "../../../components/ds";
 import Icon from "../../../components/ds/Icon";
 import { useLang, t } from "../../../utils/lang";
 import Toast, { useToast } from "../../../components/ds/Toast";
 import NaukriShell from "../../../components/auth/NaukriShell";
+import { login } from "../../../lib/seekerStore";
 
 export default function LoginClient() {
   const [lang, setLang] = useLang();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -35,7 +38,8 @@ export default function LoginClient() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            setToast(t(lang, "Prototype only — no real accounts yet"));
+            login();
+            router.push("/dashboard");
           }}
         >
           <div style={{ marginBottom: 16 }}>
@@ -80,10 +84,10 @@ export default function LoginClient() {
 
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 20 }}>
             <a
-              href="#"
+              href="/forgot-password"
               onClick={(e) => {
                 e.preventDefault();
-                setToast(t(lang, "A reset link would be emailed to you"));
+                router.push("/forgot-password");
               }}
               style={{ fontSize: 12, color: "#4f46e5", fontWeight: 500 }}
             >

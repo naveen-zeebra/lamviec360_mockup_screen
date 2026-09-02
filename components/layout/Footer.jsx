@@ -51,8 +51,8 @@ export default function Footer({ lang, setLang, app = "seeker" }) {
             [["Tìm việc làm", "Find Jobs"], "/jobs"],
             [["Công ty", "Companies"], "/companies"],
             [["Cẩm nang nghề nghiệp", "Career Resources"], "/resources"],
-            [["Hồ sơ của tôi", "My Profile"], "/login"],
-            [["Đơn ứng tuyển của tôi", "My Applications"], "/login"],
+            [["Hồ sơ của tôi", "My Profile"], "/settings"],
+            [["Đơn ứng tuyển của tôi", "My Applications"], "/applications"],
           ],
         },
         {
@@ -60,7 +60,7 @@ export default function Footer({ lang, setLang, app = "seeker" }) {
           links: [
             [["Đăng nhập", "Login"], "/login"],
             [["Tạo tài khoản", "Create Account"], "/register"],
-            [["Việc đã lưu", "Saved Jobs"], "/login"],
+            [["Việc đã lưu", "Saved Jobs"], "/saved-jobs"],
             [["Chuẩn bị phỏng vấn", "Interview Preparation"], "/resources"],
           ],
         },

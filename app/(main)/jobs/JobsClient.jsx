@@ -12,6 +12,7 @@ import Field from "../../../components/ds/Field";
 import Check from "../../../components/ds/Check";
 import Toast, { useToast } from "../../../components/ds/Toast";
 import { JOBS, COMPANIES, FILTER_VI } from "../../../lib/data";
+import { isSaved, toggleSavedJob } from "../../../lib/seekerStore";
 
 const TYPES = ["Full-time", "Part-time", "Contract", "Internship"];
 const MODES = [
@@ -39,6 +40,14 @@ export default function JobsClient() {
   const [page, setPage] = useState(1);
   const [saved, setSaved] = useState({});
   const [toast, setToast] = useToast();
+
+  useEffect(() => {
+    const map = {};
+    JOBS.forEach((j) => {
+      map[j.id] = isSaved(j.id);
+    });
+    setSaved(map);
+  }, []);
 
   const toggle = (list, set, v) => {
     set(list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
@@ -187,8 +196,9 @@ export default function JobsClient() {
                     lang={lang}
                     saved={saved[j.id]}
                     onSave={() => {
-                      setSaved((s) => ({ ...s, [j.id]: !s[j.id] }));
-                      setToast(saved[j.id] ? t(lang, "Removed from saved jobs") : t(lang, "Job saved"));
+                      const nowSaved = toggleSavedJob(j.id);
+                      setSaved((s) => ({ ...s, [j.id]: nowSaved }));
+                      setToast(nowSaved ? t(lang, "Job saved") : t(lang, "Removed from saved jobs"));
                     }}
                   />
                 ))}

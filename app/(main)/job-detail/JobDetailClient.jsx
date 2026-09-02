@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button, Badge } from "../../../components/ds";
 import Icon from "../../../components/ds/Icon";
 import { useLang, t } from "../../../utils/lang";
@@ -10,6 +10,7 @@ import Footer from "../../../components/layout/Footer";
 import JobRow from "../../../components/jobs/JobRow";
 import Toast, { useToast } from "../../../components/ds/Toast";
 import { JOBS, FILTER_VI } from "../../../lib/data";
+import { isSaved, toggleSavedJob, hasAppliedToJob } from "../../../lib/seekerStore";
 
 const STAGES = [
   ["Applied", "Đã nộp"],
@@ -22,12 +23,18 @@ const STAGES = [
 
 export default function JobDetailClient() {
   const [lang, setLang] = useLang();
+  const router = useRouter();
   const [saved, setSaved] = useState(false);
   const [applied, setApplied] = useState(false);
   const [toast, setToast] = useToast();
   const params = useSearchParams();
   const id = parseInt(params.get("id") || "1", 10);
   const job = JOBS.find((j) => j.id === id) || JOBS[0];
+
+  useEffect(() => {
+    setSaved(isSaved(job.id));
+    setApplied(hasAppliedToJob(job.id));
+  }, [job.id]);
   const related = JOBS.filter((j) => j.id !== job.id && (j.industry === job.industry || j.company === job.company)).slice(0, 3);
   const resp =
     lang === "VI"
@@ -176,8 +183,7 @@ export default function JobDetailClient() {
               style={{ width: "100%", justifyContent: "center" }}
               disabled={applied}
               onClick={() => {
-                setApplied(true);
-                setToast(t(lang, "Application submitted"));
+                if (!applied) router.push(`/apply/${job.id}`);
               }}
             >
               {applied ? t(lang, "Applied") : t(lang, "Apply Now")}
@@ -186,8 +192,9 @@ export default function JobDetailClient() {
               variant="secondary"
               style={{ width: "100%", justifyContent: "center" }}
               onClick={() => {
-                setSaved((s) => !s);
-                setToast(saved ? t(lang, "Removed from saved jobs") : t(lang, "Job saved"));
+                const nowSaved = toggleSavedJob(job.id);
+                setSaved(nowSaved);
+                setToast(nowSaved ? t(lang, "Job saved") : t(lang, "Removed from saved jobs"));
               }}
             >
               <Icon name="heart" size={16} style={{ fill: saved ? "currentColor" : "none" }} /> {saved ? t(lang, "Saved") : t(lang, "Save Job")}

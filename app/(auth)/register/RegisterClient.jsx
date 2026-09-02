@@ -1,14 +1,17 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button, Input } from "../../../components/ds";
 import Icon from "../../../components/ds/Icon";
 import { useLang, t } from "../../../utils/lang";
 import Toast, { useToast } from "../../../components/ds/Toast";
+import { registerDraft } from "../../../lib/seekerStore";
 
 
 export default function RegisterClient() {
   const [lang, setLang] = useLang();
+  const router = useRouter();
   const [f, setF] = useState({ name: "", email: "", pw: "", confirmPw: "" });
   const [showPw, setShowPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
@@ -30,7 +33,8 @@ export default function RegisterClient() {
       setErr(t(lang, "Passwords do not match."));
       return;
     }
-    setToast(t(lang, "Prototype only — no real accounts yet"));
+    registerDraft(f.name.trim(), f.email.trim());
+    router.push("/verify-email");
   };
 
   return (
