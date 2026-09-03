@@ -1,11 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Badge, Button, Select } from "../../../components/ds";
 import Icon from "../../../components/ds/Icon";
 import Toast, { useToast } from "../../../components/ds/Toast";
 import { useLang, t } from "../../../utils/lang";
+import { formatDateTime } from "../../../utils/format";
 import { JOBS } from "../../../lib/data";
 import { listApplications } from "../../../lib/seekerStore";
+
+const NOTIFY_KEY = "lv360-aiprep-notify";
 
 const BENEFITS = [
   { icon: "target", title: "Role-specific questions", desc: "Practice with questions generated from the actual job description." },
@@ -22,10 +26,22 @@ export default function AiInterviewPrepClient() {
   const [toast, setToast] = useToast();
   const [selectedApp, setSelectedApp] = useState("");
   const [interviewType, setInterviewType] = useState("");
+  const [notified, setNotified] = useState(false);
 
   useEffect(() => {
     setApplications(listApplications());
+    try {
+      setNotified(localStorage.getItem(NOTIFY_KEY) === "1");
+    } catch (e) {}
   }, []);
+
+  const notifyMe = () => {
+    try {
+      localStorage.setItem(NOTIFY_KEY, "1");
+    } catch (e) {}
+    setNotified(true);
+    setToast(t(lang, "We'll notify you when this feature launches"));
+  };
 
   const appOptions = applications
     .map((a) => {
@@ -34,10 +50,8 @@ export default function AiInterviewPrepClient() {
     })
     .filter(Boolean);
 
-  const selectedJob = (() => {
-    const a = applications.find((x) => x.id === selectedApp);
-    return a ? JOBS.find((j) => j.id === a.jobId) : null;
-  })();
+  const selectedApplication = applications.find((x) => x.id === selectedApp) || null;
+  const selectedJob = selectedApplication ? JOBS.find((j) => j.id === selectedApplication.jobId) : null;
 
   if (!preview) {
     return (
@@ -58,8 +72,8 @@ export default function AiInterviewPrepClient() {
             ))}
           </div>
           <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-            <Button variant="primary" onClick={() => setToast(t(lang, "We'll notify you when this feature launches"))}>
-              {t(lang, "Notify Me")}
+            <Button variant="primary" onClick={notifyMe} disabled={notified}>
+              {notified ? t(lang, "You're on the list") : t(lang, "Notify Me")}
             </Button>
             <Button variant="secondary" onClick={() => setPreview(true)}>
               {t(lang, "Preview the planned flow")}
@@ -111,6 +125,15 @@ export default function AiInterviewPrepClient() {
             <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)" }}>
               {selectedJob.company} · {lang === "VN" || lang === "VI" ? selectedJob.locationVi : selectedJob.location}
             </p>
+            {selectedApplication && selectedApplication.interview && (
+              <div className="lv-reg-hint" style={{ marginTop: 16 }}>
+                <span aria-hidden="true"><Icon name="calendar" size={16} /></span>
+                <span>
+                  {t(lang, "You have an interview for this role on")} {formatDateTime(lang, selectedApplication.interview.at)}.{" "}
+                  <Link href={`/interviews/${selectedApplication.id}`} style={{ fontWeight: 700 }}>{t(lang, "View details")}</Link>
+                </span>
+              </div>
+            )}
           </div>
         )}
 

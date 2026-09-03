@@ -6,9 +6,28 @@ import Icon from "../../../components/ds/Icon";
 import Toast, { useToast } from "../../../components/ds/Toast";
 import RequirePermission from "../../../components/company/RequirePermission";
 import { useLang, t } from "../../../utils/lang";
-import { getCompany, saveCompany, getSettings, saveSettings, getAuth, logout, resetAll } from "../../../lib/companyStore";
+import {
+  getCompany,
+  saveCompany,
+  getSettings,
+  saveSettings,
+  getAuth,
+  logout,
+  resetAll,
+  listRejectionTemplates,
+  addRejectionTemplate,
+  updateRejectionTemplate,
+  deleteRejectionTemplate,
+  purgeRejectedCandidates,
+} from "../../../lib/companyStore";
 
-const TABS = ["Company Profile", "Security", "Notifications", "Pipeline", "Account"];
+const TABS = ["Company Profile", "Security", "Notifications", "Pipeline", "Privacy & Data", "Account"];
+const CONTACT_VISIBILITY = [
+  { value: "always", label: "Always visible" },
+  { value: "after_shortlist", label: "Only after Shortlisted" },
+  { value: "never", label: "Never (masked)" },
+];
+const RETENTION_MONTHS = ["6", "12", "24", "36"];
 const INDUSTRIES = ["Technology", "Retail & Commerce", "Media & Creative", "Transport & Logistics", "Manufacturing", "Finance & Banking", "Other"];
 const SIZES = ["1–10", "11–50", "51–200", "201–500", "500+"];
 
@@ -44,12 +63,17 @@ function Settings() {
   const [settings, setSettings] = useState(null);
   const [auth, setAuth] = useState(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const [pw, setPw] = useState({ current: "", next: "" });
+  const [templates, setTemplates] = useState([]);
+  const [tplDraft, setTplDraft] = useState({ title: "", body: "" });
+  const [editingTpl, setEditingTpl] = useState(null);
   const [toast, setToast] = useToast();
 
   useEffect(() => {
     setCompany(getCompany());
     setSettings(getSettings());
     setAuth(getAuth());
+    setTemplates(listRejectionTemplates());
   }, []);
 
   if (!company || !settings || !auth) return null;
@@ -62,6 +86,27 @@ function Settings() {
     setSettings((s) => ({ ...s, ...patch }));
     saveSettings(patch);
     setToast(t(lang, "Saved"));
+  };
+
+  const saveTemplate = () => {
+    if (!tplDraft.title.trim() || !tplDraft.body.trim()) {
+      setToast(t(lang, "Add a title and message."));
+      return;
+    }
+    if (editingTpl) updateRejectionTemplate(editingTpl, tplDraft);
+    else addRejectionTemplate(tplDraft);
+    setTemplates(listRejectionTemplates());
+    setTplDraft({ title: "", body: "" });
+    setEditingTpl(null);
+    setToast(t(lang, "Template saved"));
+  };
+  const removeTemplate = (id) => {
+    deleteRejectionTemplate(id);
+    setTemplates(listRejectionTemplates());
+    if (editingTpl === id) {
+      setEditingTpl(null);
+      setTplDraft({ title: "", body: "" });
+    }
   };
 
   return (
@@ -127,14 +172,27 @@ function Settings() {
               <span>{t(lang, "Two-factor authentication (OTP)")}</span>
               <span className={`${AI_TAG} bg-success-bg text-success-fg`}>{t(lang, "Always on")}</span>
             </div>
+            <p className="mt-2 text-xs text-faint">
+              {t(lang, "Admins are challenged for a 6-digit code at sign-in. This is enforced for all company accounts.")}
+            </p>
             <div className="mt-4">
               <h3 className="mb-3 text-base font-bold">{t(lang, "Change Password")}</h3>
               <div className={FORM_GRID}>
-                <Input label={t(lang, "Current password")} type="password" value="" onChange={() => {}} placeholder="••••••••" />
-                <Input label={t(lang, "New password")} type="password" value="" onChange={() => {}} placeholder="••••••••" />
+                <Input label={t(lang, "Current password")} type="password" value={pw.current} onChange={(e) => setPw({ ...pw, current: e.target.value })} placeholder="••••••••" />
+                <Input label={t(lang, "New password")} type="password" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} placeholder="••••••••" />
               </div>
               <div className="mt-3">
-                <Button variant="secondary" onClick={() => setToast(t(lang, "Password updated"))}>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    if (!pw.current || pw.next.length < 8) {
+                      setToast(t(lang, "New password must be at least 8 characters."));
+                      return;
+                    }
+                    setPw({ current: "", next: "" });
+                    setToast(t(lang, "Password updated"));
+                  }}
+                >
                   {t(lang, "Update Password")}
                 </Button>
               </div>
@@ -153,12 +211,106 @@ function Settings() {
         )}
 
         {tab === "Pipeline" && (
-          <div className="flex flex-col">
-            <Switch label={t(lang, "Send rejection email automatically")} on={settings.pipeline.autoRejectEmail} onChange={(v) => persistSettings({ pipeline: { ...settings.pipeline, autoRejectEmail: v } })} />
-            <Switch label={t(lang, "Delay rejection emails until end of hiring")} on={settings.pipeline.delayRejectionEmail} onChange={(v) => persistSettings({ pipeline: { ...settings.pipeline, delayRejectionEmail: v } })} />
-            <p className="mt-3 text-xs text-faint">
-              {t(lang, "Structured rejection reason templates are applied when sending rejection emails.")}
-            </p>
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col">
+              <Switch label={t(lang, "Send rejection email automatically")} on={settings.pipeline.autoRejectEmail} onChange={(v) => persistSettings({ pipeline: { ...settings.pipeline, autoRejectEmail: v } })} />
+              <Switch label={t(lang, "Delay rejection emails until end of hiring")} on={settings.pipeline.delayRejectionEmail} onChange={(v) => persistSettings({ pipeline: { ...settings.pipeline, delayRejectionEmail: v } })} />
+            </div>
+
+            <div className="border-t border-line pt-5">
+              <h3 className="mb-1 text-base font-bold">{t(lang, "Rejection reason templates")}</h3>
+              <p className="mb-4 text-sm text-muted">{t(lang, "Recruiters pick one of these when moving a candidate to Rejected.")}</p>
+
+              <div className="flex flex-col gap-2.5">
+                {templates.map((tpl) => (
+                  <div key={tpl.id} className="rounded-md border border-line p-3.5">
+                    <div className="flex items-start justify-between gap-3">
+                      <strong className="text-sm">{tpl.title}</strong>
+                      <div className="flex flex-shrink-0 gap-1.5">
+                        <button className="text-xs font-semibold text-brand" onClick={() => { setEditingTpl(tpl.id); setTplDraft({ title: tpl.title, body: tpl.body }); }}>
+                          {t(lang, "Edit")}
+                        </button>
+                        <button className="text-xs font-semibold text-danger-fg" onClick={() => removeTemplate(tpl.id)}>
+                          {t(lang, "Delete")}
+                        </button>
+                      </div>
+                    </div>
+                    <p className="mt-1 text-sm text-muted">{tpl.body}</p>
+                  </div>
+                ))}
+                {templates.length === 0 && <p className="text-sm text-faint">{t(lang, "No templates yet.")}</p>}
+              </div>
+
+              <div className="mt-4 rounded-md bg-sunken p-4">
+                <strong className="text-sm">{editingTpl ? t(lang, "Edit template") : t(lang, "New template")}</strong>
+                <div className="mt-2.5 flex flex-col gap-2.5">
+                  <Input label={t(lang, "Title")} value={tplDraft.title} onChange={(e) => setTplDraft({ ...tplDraft, title: e.target.value })} placeholder={t(lang, "e.g. Not enough experience")} />
+                  <div>
+                    <label className="mb-1.5 block text-sm font-semibold text-ink">{t(lang, "Message to candidate")}</label>
+                    <textarea className={`${TEXTAREA} min-h-[90px]`} value={tplDraft.body} onChange={(e) => setTplDraft({ ...tplDraft, body: e.target.value })} />
+                  </div>
+                  <div className="flex gap-2.5">
+                    <Button variant="primary" size="sm" onClick={saveTemplate}>{editingTpl ? t(lang, "Save template") : t(lang, "Add template")}</Button>
+                    {editingTpl && (
+                      <Button variant="secondary" size="sm" onClick={() => { setEditingTpl(null); setTplDraft({ title: "", body: "" }); }}>{t(lang, "Cancel")}</Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === "Privacy & Data" && (
+          <div className="flex flex-col gap-6">
+            <div>
+              <h3 className="mb-1 text-base font-bold">{t(lang, "Candidate contact visibility")}</h3>
+              <p className="mb-4 text-sm text-muted">{t(lang, "Control when recruiters can see a candidate's email and phone number.")}</p>
+              <div className="max-w-[360px]">
+                <Select
+                  label={t(lang, "Show contact details")}
+                  value={settings.privacy.contactVisibility}
+                  onChange={(e) => persistSettings({ privacy: { ...settings.privacy, contactVisibility: e.target.value } })}
+                  options={CONTACT_VISIBILITY.map((o) => ({ value: o.value, label: t(lang, o.label) }))}
+                />
+              </div>
+              <div className="mt-2">
+                <Switch label={t(lang, "Always mask email address")} on={settings.privacy.maskEmail} onChange={(v) => persistSettings({ privacy: { ...settings.privacy, maskEmail: v } })} />
+                <Switch label={t(lang, "Always mask phone number")} on={settings.privacy.maskPhone} onChange={(v) => persistSettings({ privacy: { ...settings.privacy, maskPhone: v } })} />
+              </div>
+            </div>
+
+            <div className="border-t border-line pt-5">
+              <h3 className="mb-1 text-base font-bold">{t(lang, "Data retention")}</h3>
+              <p className="mb-4 text-sm text-muted">{t(lang, "How long candidate data is kept after a role is closed (BR-012).")}</p>
+              <div className="max-w-[360px]">
+                <Select
+                  label={t(lang, "Keep candidate data for")}
+                  value={String(settings.retention.candidateDataMonths)}
+                  onChange={(e) => persistSettings({ retention: { ...settings.retention, candidateDataMonths: Number(e.target.value) } })}
+                  options={RETENTION_MONTHS.map((m) => ({ value: m, label: `${m} ${t(lang, "months")}` }))}
+                />
+              </div>
+              <div className="mt-2">
+                <Switch
+                  label={t(lang, "Auto-purge rejected candidates after 6 months")}
+                  on={settings.retention.autoPurge}
+                  onChange={(v) => persistSettings({ retention: { ...settings.retention, autoPurge: v } })}
+                />
+              </div>
+              <div className="mt-3">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => {
+                    const n = purgeRejectedCandidates(settings.retention.purgeRejectedMonths || 6);
+                    setToast(n ? `${n} ${t(lang, "records purged")}` : t(lang, "Nothing to purge"));
+                  }}
+                >
+                  {t(lang, "Run purge now")}
+                </Button>
+              </div>
+            </div>
           </div>
         )}
 

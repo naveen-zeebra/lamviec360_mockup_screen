@@ -9,8 +9,8 @@ import { unreadNotificationCount, logout, getAuth } from "../../lib/seekerStore"
 const NAV = [
   { href: "/dashboard", labelKey: "Dashboard" },
   { href: "/jobs", labelKey: "Find Jobs" },
-  { href: "/dashboard#recommended", labelKey: "Recommended" },
   { href: "/applications", labelKey: "Applications" },
+  { href: "/interviews", labelKey: "Interviews" },
   { href: "/saved-jobs", labelKey: "Saved Jobs" },
 ];
 
@@ -31,6 +31,16 @@ export default function SeekerHeader({ lang, setLang }) {
     setMobileOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    const refresh = () => setUnread(unreadNotificationCount());
+    window.addEventListener("lv360-store", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.removeEventListener("lv360-store", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, []);
+
   const initials = (name || "U")
     .split(" ")
     .map((p) => p[0])
@@ -46,7 +56,8 @@ export default function SeekerHeader({ lang, setLang }) {
         </Link>
         <nav className="flex flex-1 gap-6 max-[1080px]:hidden" aria-label={t(lang, "Seeker navigation")}>
           {NAV.map((n) => {
-            const active = pathname === n.href.split("#")[0];
+            const base = n.href.split("#")[0];
+            const active = pathname === base || (base !== "/dashboard" && pathname.startsWith(base + "/"));
             return (
               <Link
                 key={n.href}
@@ -80,6 +91,12 @@ export default function SeekerHeader({ lang, setLang }) {
               <div className="absolute right-0 top-[calc(100%+6px)] z-50 min-w-[200px] rounded-md border border-line bg-card p-1.5 shadow-md" role="menu">
                 <button role="menuitem" className={menuItem} onClick={() => router.push("/settings")}>
                   <Icon name="user" size={14} style={{ marginRight: 8 }} /> {t(lang, "Profile")}
+                </button>
+                <button role="menuitem" className={menuItem} onClick={() => router.push("/resume")}>
+                  <Icon name="file-text" size={14} style={{ marginRight: 8 }} /> {t(lang, "My Résumé")}
+                </button>
+                <button role="menuitem" className={menuItem} onClick={() => router.push("/interviews")}>
+                  <Icon name="calendar" size={14} style={{ marginRight: 8 }} /> {t(lang, "Interviews")}
                 </button>
                 <button role="menuitem" className={menuItem} onClick={() => router.push("/settings")}>
                   <Icon name="settings" size={14} style={{ marginRight: 8 }} /> {t(lang, "Settings")}

@@ -7,11 +7,12 @@ import Skeleton from "../../../components/ds/Skeleton";
 import ErrorState from "../../../components/ds/ErrorState";
 import StageBadge from "../../../components/seeker/StageBadge";
 import { useLang, t } from "../../../utils/lang";
+import { formatDateTime } from "../../../utils/format";
 import { JOBS, FILTER_VI } from "../../../lib/data";
 import { getProfile, listApplications, listSavedJobs, listNotifications, computeCompleteness } from "../../../lib/seekerStore";
 
 const PAGE = "mx-auto max-w-[1200px] px-6 pb-24 pt-10 max-md:px-4 max-md:pb-12 max-md:pt-7";
-const STAT = "flex flex-col gap-1 rounded-md bg-sunken p-4";
+const STAT = "flex flex-col gap-1 rounded-md bg-sunken p-4 text-inherit no-underline transition-shadow hover:shadow-sm hover:no-underline";
 const SECTION_HEAD = "mb-4 flex items-center justify-between";
 const SECTION_H2 = "text-lg font-bold";
 const VIEW_LINK = "flex items-center gap-1 text-sm font-semibold no-underline";
@@ -89,22 +90,22 @@ export default function DashboardClient() {
       </div>
 
       <div className="mb-6 grid grid-cols-4 gap-3 max-lg:grid-cols-2">
-        <div className={STAT}>
+        <Link href="/dashboard#recommended" className={STAT}>
           <span className="text-xs text-faint">{t(lang, "Recommended Jobs")}</span>
           <strong className="text-2xl leading-[1.1] font-bold">{recommended.length}</strong>
-        </div>
-        <div className={STAT}>
+        </Link>
+        <Link href="/applications" className={STAT}>
           <span className="text-xs text-faint">{t(lang, "Applications")}</span>
           <strong className="text-2xl leading-[1.1] font-bold">{applications.length}</strong>
-        </div>
-        <div className={STAT}>
+        </Link>
+        <Link href="/interviews" className={STAT}>
           <span className="text-xs text-faint">{t(lang, "Interviews")}</span>
           <strong className="text-2xl leading-[1.1] font-bold">{interviews.length}</strong>
-        </div>
-        <div className={STAT}>
+        </Link>
+        <Link href="/saved-jobs" className={STAT}>
           <span className="text-xs text-faint">{t(lang, "Saved Jobs")}</span>
           <strong className="text-2xl leading-[1.1] font-bold">{savedJobs.length}</strong>
-        </div>
+        </Link>
       </div>
 
       {completeness < 100 && (
@@ -118,7 +119,7 @@ export default function DashboardClient() {
               <i className="block h-full rounded-pill bg-brand" style={{ width: `${completeness}%` }} />
             </div>
           </div>
-          <Link href="/settings">
+          <Link href="/settings?tab=profile">
             <Button variant="primary" size="sm">
               {t(lang, "Complete Profile")}
             </Button>
@@ -151,6 +152,9 @@ export default function DashboardClient() {
           <div className={EMPTY}>
             <h3>{t(lang, "No recommendations yet")}</h3>
             <p>{t(lang, "Complete your profile so we can match you with relevant jobs.")}</p>
+            <div className="mt-4">
+              <Link href="/settings?tab=profile"><Button variant="secondary">{t(lang, "Complete Profile")}</Button></Link>
+            </div>
           </div>
         )}
       </section>
@@ -204,16 +208,18 @@ export default function DashboardClient() {
               {interviews.map((a) => {
                 const job = JOBS.find((j) => j.id === a.jobId);
                 if (!job) return null;
+                const at = (a.interview && a.interview.at) || a.interviewAt;
                 return (
-                  <div key={a.id} className={ROW}>
+                  <Link key={a.id} href={`/interviews/${a.id}`} className={ROW}>
                     <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-brand-subtle text-brand">
                       <Icon name="calendar" size={16} />
                     </div>
                     <div className="flex flex-1 flex-col">
                       <strong className="text-[13px]">{isVi ? job.titleVi : job.title}</strong>
-                      <span className="text-xs text-faint">{job.company} · {a.interviewAt || a.appliedDate}</span>
+                      <span className="text-xs text-faint">{job.company} · {at ? formatDateTime(lang, at) : a.appliedDate}</span>
                     </div>
-                  </div>
+                    <Icon name="chevron-right" size={16} />
+                  </Link>
                 );
               })}
             </div>

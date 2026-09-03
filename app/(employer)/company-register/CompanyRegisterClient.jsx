@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Input, Select } from "../../../components/ds";
 import Icon from "../../../components/ds/Icon";
 import { useLang, t } from "../../../utils/lang";
@@ -12,6 +13,7 @@ import { COMPANIES } from "../../../lib/data";
 
 export default function CompanyRegisterClient() {
   const [lang, setLang] = useLang();
+  const router = useRouter();
   const [f, setF] = useState({ co: "", name: "", email: "", pw: "", confirmPw: "", ind: "", size: "" });
   const [showPw, setShowPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
@@ -38,7 +40,8 @@ export default function CompanyRegisterClient() {
       setErr(t(lang, "Please accept the terms to continue."));
       return;
     }
-    setToast(t(lang, "Prototype only — no real accounts yet"));
+    setToast(t(lang, "Sending a verification code…"));
+    setTimeout(() => router.push("/company-verify-email"), 700);
   };
 
   return (

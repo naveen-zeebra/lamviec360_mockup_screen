@@ -6,7 +6,7 @@ import Icon from "../../../components/ds/Icon";
 import Stepper from "../../../components/ds/Stepper";
 import Toast, { useToast } from "../../../components/ds/Toast";
 import { useLang, t } from "../../../utils/lang";
-import { getProfile, saveProfile, computeCompleteness } from "../../../lib/seekerStore";
+import { getProfile, saveProfile, saveResume, computeCompleteness } from "../../../lib/seekerStore";
 
 const STEP_LABELS = ["Personal", "Professional", "Education", "Experience", "Resume & Preferences", "Completion"];
 const EXPERIENCE_RANGES = ["Less than 1 year", "1-3 years", "3-5 years", "5-10 years", "10+ years"];
@@ -53,9 +53,13 @@ export default function OnboardingClient() {
       return;
     }
     setErr("");
+    setToast(t(lang, "Progress saved"));
     setStep((s) => Math.min(6, s + 1));
   };
-  const goBack = () => setStep((s) => Math.max(1, s - 1));
+  const goBack = () => {
+    setErr("");
+    setStep((s) => Math.max(1, s - 1));
+  };
 
   const addSkill = () => {
     const v = skillInput.trim();
@@ -97,7 +101,18 @@ export default function OnboardingClient() {
       return;
     }
     setErr("");
-    persist({ resume: { fileName: file.name, uploadedAt: new Date().toISOString().slice(0, 10) } });
+    const done = (dataUrl) => {
+      saveResume({ fileName: file.name, size: file.size, type: file.type, dataUrl: dataUrl || "" });
+      setProfile(getProfile());
+    };
+    if (file.size <= 2 * 1024 * 1024) {
+      const reader = new FileReader();
+      reader.onload = () => done(reader.result);
+      reader.onerror = () => done("");
+      reader.readAsDataURL(file);
+    } else {
+      done("");
+    }
   };
 
   const preferenceList = (key, value) => {
@@ -125,7 +140,7 @@ export default function OnboardingClient() {
         <div className="lv-onboard-card">
           {step === 1 && (
             <div className="lv-form-grid">
-              <Input label={t(lang, "Full Name")} value={profile.personal.fullName} onChange={(e) => persist({ personal: { ...profile.personal, fullName: e.target.value } })} placeholder="Nguyen Van A" />
+              <Input label={t(lang, "Full Name")} value={profile.personal.fullName} onChange={(e) => persist({ personal: { ...profile.personal, fullName: e.target.value } })} placeholder="Nguyen Van A" error={step === 1 && err && !profile.personal.fullName.trim() ? err : undefined} />
               <Input label={t(lang, "Phone")} value={profile.personal.phone} onChange={(e) => persist({ personal: { ...profile.personal, phone: e.target.value } })} placeholder="090 123 4567" />
               <Input label={t(lang, "Location")} value={profile.personal.location} onChange={(e) => persist({ personal: { ...profile.personal, location: e.target.value } })} placeholder="Ho Chi Minh City" />
               <div>
@@ -138,7 +153,7 @@ export default function OnboardingClient() {
 
           {step === 2 && (
             <div className="lv-form-grid">
-              <Input label={t(lang, "Current Job Title")} value={profile.professional.title} onChange={(e) => persist({ professional: { ...profile.professional, title: e.target.value } })} placeholder="Frontend Engineer" />
+              <Input label={t(lang, "Current Job Title")} value={profile.professional.title} onChange={(e) => persist({ professional: { ...profile.professional, title: e.target.value } })} placeholder="Frontend Engineer" error={step === 2 && err && !profile.professional.title.trim() ? err : undefined} />
               <Select label={t(lang, "Experience")} value={profile.professional.experience} onChange={(e) => persist({ professional: { ...profile.professional, experience: e.target.value } })} options={EXPERIENCE_RANGES.map((v) => ({ value: v, label: t(lang, v) }))} placeholder={t(lang, "Select range")} />
               <Select label={t(lang, "Industry")} value={profile.professional.industry} onChange={(e) => persist({ professional: { ...profile.professional, industry: e.target.value } })} options={INDUSTRIES.map((v) => ({ value: v, label: t(lang, v) }))} placeholder={t(lang, "Select industry")} />
               <div>
@@ -260,7 +275,7 @@ export default function OnboardingClient() {
                 </Button>
               )}
               <Button type="button" variant="primary" onClick={goNext} style={{ marginLeft: "auto" }}>
-                {t(lang, "Save & Continue")}
+                {t(lang, "Continue")}
               </Button>
             </div>
           )}

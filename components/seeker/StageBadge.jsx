@@ -10,6 +10,7 @@ const CONFIG = {
   "Offer Sent": { tone: "success", icon: "gift" },
   Hired: { tone: "success", icon: "check-circle" },
   Rejected: { tone: "error", icon: "x-circle" },
+  Withdrawn: { tone: "neutral", icon: "undo-2" },
 };
 
 export default function StageBadge({ stage, lang }) {

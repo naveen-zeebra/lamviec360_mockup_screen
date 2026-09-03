@@ -61,6 +61,16 @@ export default function CompanyShell({ children }) {
     setMobileNavOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    const refresh = () => setUnread(unreadNotificationCount());
+    window.addEventListener("lv360-store", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.removeEventListener("lv360-store", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, []);
+
   const role = auth.role;
   const visibleNav = NAV.filter((n) => can(role, n.perm));
 

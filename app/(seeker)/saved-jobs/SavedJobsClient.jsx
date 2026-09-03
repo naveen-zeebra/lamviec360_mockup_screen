@@ -2,8 +2,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "../../../components/ds";
-import Icon from "../../../components/ds/Icon";
 import JobRow from "../../../components/jobs/JobRow";
+import Skeleton from "../../../components/ds/Skeleton";
+import ErrorState from "../../../components/ds/ErrorState";
 import Toast, { useToast } from "../../../components/ds/Toast";
 import { useLang, t } from "../../../utils/lang";
 import { JOBS } from "../../../lib/data";
@@ -11,19 +12,46 @@ import { listSavedJobs, toggleSavedJob } from "../../../lib/seekerStore";
 
 export default function SavedJobsClient() {
   const [lang] = useLang();
-  const [ids, setIds] = useState(null);
+  const [state, setState] = useState({ loading: true, error: false, ids: null });
   const [toast, setToast] = useToast();
 
-  useEffect(() => {
-    setIds(listSavedJobs());
-  }, []);
+  const load = () => {
+    setState({ loading: true, error: false, ids: null });
+    setTimeout(() => {
+      try {
+        setState({ loading: false, error: false, ids: listSavedJobs() });
+      } catch (e) {
+        setState({ loading: false, error: true, ids: null });
+      }
+    }, 300);
+  };
+  useEffect(load, []);
 
-  if (ids === null) return null;
+  const { loading, error, ids } = state;
+
+  if (error) {
+    return (
+      <div className="lv-page-container">
+        <ErrorState title={t(lang, "Couldn't load saved jobs")} desc={t(lang, "Something went wrong reading your saved data.")} onRetry={load} retryLabel={t(lang, "Try again")} />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="lv-page-container">
+        <Skeleton width={160} height={28} style={{ marginBottom: 8 }} />
+        <Skeleton width={280} height={14} style={{ marginBottom: 24 }} />
+        {[1, 2, 3].map((i) => <Skeleton key={i} height={150} style={{ marginBottom: 14 }} />)}
+      </div>
+    );
+  }
+
   const jobs = ids.map((id) => JOBS.find((j) => j.id === id)).filter(Boolean);
 
-  const remove = (jobId) => {
+  const unsave = (jobId) => {
     toggleSavedJob(jobId);
-    setIds((prev) => prev.filter((id) => id !== jobId));
+    setState((s) => ({ ...s, ids: s.ids.filter((id) => id !== jobId) }));
     setToast(t(lang, "Removed from saved jobs"));
   };
 
@@ -31,49 +59,17 @@ export default function SavedJobsClient() {
     <div className="lv-page-container">
       <div className="lv-dash-welcome">
         <h1>{t(lang, "Saved Jobs")}</h1>
-        <p>{t(lang, "Jobs you've bookmarked to review or apply to later.")}</p>
+        <p>
+          {jobs.length
+            ? `${jobs.length} ${t(lang, jobs.length === 1 ? "saved job" : "saved jobs")}`
+            : t(lang, "Jobs you've bookmarked to review or apply to later.")}
+        </p>
       </div>
 
       {jobs.length ? (
         <div className="lv-job-list">
           {jobs.map((j) => (
-            <div key={j.id} className="lv-jobrow" style={{ alignItems: "center" }}>
-              <div className="lv-job-logo" style={{ width: 52, height: 52 }}>
-                {j.company.slice(0, 2).toUpperCase()}
-              </div>
-              <div className="lv-jobrow-body">
-                <h3 className="lv-job-title" style={{ marginBottom: "var(--space-2)" }}>
-                  <Link href={`/job-detail?id=${j.id}`} style={{ color: "inherit" }}>
-                    {lang === "VN" || lang === "VI" ? j.titleVi : j.title}
-                  </Link>
-                </h3>
-                <div className="lv-job-meta" style={{ marginBottom: 0 }}>
-                  <span>
-                    <Icon name="map-pin" size={14} />
-                    {lang === "VN" || lang === "VI" ? j.locationVi : j.location}
-                  </span>
-                  <span>
-                    <Icon name="wallet" size={14} />
-                    {j.salary}
-                  </span>
-                </div>
-              </div>
-              <div className="lv-jobrow-actions">
-                <Link href={`/job-detail?id=${j.id}`}>
-                  <Button variant="secondary" size="sm">
-                    {t(lang, "View Job")}
-                  </Button>
-                </Link>
-                <Link href={`/apply/${j.id}`}>
-                  <Button variant="primary" size="sm">
-                    {t(lang, "Apply")}
-                  </Button>
-                </Link>
-                <button className="lv-job-save" aria-label={t(lang, "Remove")} onClick={() => remove(j.id)}>
-                  <Icon name="trash-2" size={16} style={{ color: "var(--gray-400)" }} />
-                </button>
-              </div>
-            </div>
+            <JobRow key={j.id} job={j} lang={lang} saved onSave={() => unsave(j.id)} />
           ))}
         </div>
       ) : (

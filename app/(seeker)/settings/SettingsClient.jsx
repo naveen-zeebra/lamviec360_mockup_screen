@@ -1,13 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, Input, Select } from "../../../components/ds";
 import Icon from "../../../components/ds/Icon";
 import Toast, { useToast } from "../../../components/ds/Toast";
 import { useLang, t } from "../../../utils/lang";
-import { getProfile, saveProfile, getSettings, saveSettings, getAuth, logout, resetAll } from "../../../lib/seekerStore";
+import { getProfile, saveProfile, saveResume, getSettings, saveSettings, getAuth, logout, resetAll, computeCompleteness } from "../../../lib/seekerStore";
 
 const TABS = ["Profile", "Preferences", "Notifications", "Privacy", "Account"];
+const TAB_SLUGS = { Profile: "profile", Preferences: "preferences", Notifications: "notifications", Privacy: "privacy", Account: "account" };
+const SLUG_TABS = Object.fromEntries(Object.entries(TAB_SLUGS).map(([k, v]) => [v, k]));
 const INDUSTRIES = ["Technology", "Retail & Commerce", "Media & Creative", "Transport & Logistics", "Manufacturing", "Finance & Banking", "Other"];
 const EXPERIENCE_RANGES = ["Less than 1 year", "1-3 years", "3-5 years", "5-10 years", "10+ years"];
 const WORK_MODES = ["Remote", "Hybrid", "On-site"];
@@ -62,18 +65,33 @@ function Switch({ on, onChange, label }) {
 export default function SettingsClient() {
   const [lang] = useLang();
   const router = useRouter();
-  const [tab, setTab] = useState("Profile");
+  const [tab, setTabState] = useState("Profile");
   const [profile, setProfile] = useState(null);
   const [settings, setSettings] = useState(null);
   const [auth, setAuth] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [pw, setPw] = useState({ current: "", next: "", confirm: "" });
+  const [pwErr, setPwErr] = useState("");
   const [toast, setToast] = useToast();
 
   useEffect(() => {
     setProfile(getProfile());
     setSettings(getSettings());
     setAuth(getAuth());
+    try {
+      const slug = new URLSearchParams(window.location.search).get("tab");
+      if (slug && SLUG_TABS[slug]) setTabState(SLUG_TABS[slug]);
+    } catch (e) {}
   }, []);
+
+  const setTab = (tb) => {
+    setTabState(tb);
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set("tab", TAB_SLUGS[tb]);
+      window.history.replaceState(null, "", url);
+    } catch (e) {}
+  };
 
   if (!profile || !settings || !auth) return null;
 
@@ -103,12 +121,40 @@ export default function SettingsClient() {
   const onResumeChange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
+    const ext = (file.name.split(".").pop() || "").toLowerCase();
+    if (!["pdf", "doc", "docx", "jpg", "jpeg", "png"].includes(ext)) {
+      setToast(t(lang, "Use a PDF, DOC, DOCX, JPG or PNG file."));
+      return;
+    }
     if (file.size > 10 * 1024 * 1024) {
       setToast(t(lang, "File is larger than 10MB."));
       return;
     }
-    persist({ resume: { fileName: file.name, uploadedAt: new Date().toISOString().slice(0, 10) } });
+    const done = (dataUrl) => {
+      saveResume({ fileName: file.name, size: file.size, type: file.type, dataUrl: dataUrl || "" });
+      setProfile(getProfile());
+      setToast(t(lang, "Résumé saved"));
+    };
+    if (file.size <= 2 * 1024 * 1024) {
+      const reader = new FileReader();
+      reader.onload = () => done(reader.result);
+      reader.onerror = () => done("");
+      reader.readAsDataURL(file);
+    } else {
+      done("");
+    }
   };
+
+  const submitPassword = () => {
+    if (!pw.current || !pw.next) return setPwErr(t(lang, "Fill in both password fields."));
+    if (pw.next.length < 8) return setPwErr(t(lang, "New password must be at least 8 characters."));
+    if (pw.next !== pw.confirm) return setPwErr(t(lang, "Passwords do not match."));
+    setPwErr("");
+    setPw({ current: "", next: "", confirm: "" });
+    setToast(t(lang, "Password updated"));
+  };
+
+  const completeness = computeCompleteness(profile);
 
   return (
     <div className="lv-page-container">
@@ -117,9 +163,9 @@ export default function SettingsClient() {
         <p>{t(lang, "Manage your profile, preferences, notifications and account.")}</p>
       </div>
 
-      <div className="lv-auth-tabs lv-settings-tabs">
+      <div className="lv-auth-tabs lv-settings-tabs" style={{ overflowX: "auto", flexWrap: "nowrap" }}>
         {TABS.map((tb) => (
-          <button key={tb} className={tab === tb ? "active" : ""} onClick={() => setTab(tb)}>
+          <button key={tb} className={tab === tb ? "active" : ""} onClick={() => setTab(tb)} style={{ whiteSpace: "nowrap" }}>
             {t(lang, tb)}
           </button>
         ))}
@@ -128,6 +174,13 @@ export default function SettingsClient() {
       <div className="lv-onboard-card">
         {tab === "Profile" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, marginBottom: 8 }}>
+                <strong style={{ fontSize: "var(--text-sm)" }}>{t(lang, "Profile Completion")}</strong>
+                <span style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)" }}>{completeness}%</span>
+              </div>
+              <div className="lv-progress"><i style={{ width: `${completeness}%` }} /></div>
+            </div>
             <div>
               <h3 style={{ marginBottom: 14 }}>{t(lang, "Personal")}</h3>
               <div className="lv-form-grid">
@@ -193,6 +246,10 @@ export default function SettingsClient() {
                     <Input label={t(lang, "Start Date")} value={ex.start} onChange={(e) => updateExperience(i, "start", e.target.value)} />
                     <Input label={t(lang, "End Date")} value={ex.end} onChange={(e) => updateExperience(i, "end", e.target.value)} />
                   </div>
+                  <div style={{ marginTop: 12 }}>
+                    <label style={{ fontSize: "var(--text-sm)", fontWeight: 600, display: "block", marginBottom: 6 }}>{t(lang, "Responsibilities")}</label>
+                    <textarea className="lv-textarea" rows={3} value={ex.responsibilities || ""} onChange={(e) => updateExperience(i, "responsibilities", e.target.value)} placeholder={t(lang, "Key responsibilities and achievements")} />
+                  </div>
                   <button type="button" className="lv-repeat-remove" onClick={() => persist({ experience: profile.experience.filter((_, idx) => idx !== i) })}>
                     <Icon name="trash-2" size={14} /> {t(lang, "Remove")}
                   </button>
@@ -204,14 +261,19 @@ export default function SettingsClient() {
             </div>
 
             <div>
-              <h3 style={{ marginBottom: 14 }}>{t(lang, "Resume")}</h3>
-              {profile.resume.fileName && (
+              <h3 style={{ marginBottom: 14 }}>{t(lang, "Résumé")}</h3>
+              {profile.resume.fileName ? (
                 <p className="lv-file-chip">
                   <Icon name="file-text" size={14} />
                   {profile.resume.fileName}
                 </p>
+              ) : (
+                <p style={{ color: "var(--text-tertiary)", fontSize: "var(--text-sm)" }}>{t(lang, "No résumé on file yet.")}</p>
               )}
               <input type="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onChange={onResumeChange} style={{ marginTop: 10 }} />
+              <Link href="/resume" className="lv-job-view" style={{ marginTop: 12, display: "inline-flex" }}>
+                {t(lang, "Manage & preview résumé")} <Icon name="arrow-right" size={14} />
+              </Link>
             </div>
           </div>
         )}
@@ -258,17 +320,27 @@ export default function SettingsClient() {
         {tab === "Account" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
             <div className="lv-form-grid">
-              <Input label={t(lang, "Email")} value={auth.email} onChange={() => {}} />
+              <div>
+                <label style={{ fontSize: "var(--text-sm)", fontWeight: 600, display: "block", marginBottom: 6 }}>{t(lang, "Email")}</label>
+                <p className="lv-file-chip" style={{ marginTop: 0 }}><Icon name="mail" size={14} /> {auth.email}</p>
+              </div>
               <Input label={t(lang, "Phone")} value={profile.personal.phone} onChange={(e) => persist({ personal: { ...profile.personal, phone: e.target.value } })} />
             </div>
             <div>
               <h3 style={{ marginBottom: 14 }}>{t(lang, "Change Password")}</h3>
               <div className="lv-form-grid">
-                <Input label={t(lang, "Current password")} type="password" value="" onChange={() => {}} placeholder="••••••••" />
-                <Input label={t(lang, "New password")} type="password" value="" onChange={() => {}} placeholder="••••••••" />
+                <Input label={t(lang, "Current password")} type="password" value={pw.current} onChange={(e) => setPw({ ...pw, current: e.target.value })} placeholder="••••••••" />
+                <Input label={t(lang, "New password")} type="password" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} placeholder="••••••••" />
+                <Input label={t(lang, "Confirm new password")} type="password" value={pw.confirm} onChange={(e) => setPw({ ...pw, confirm: e.target.value })} placeholder="••••••••" />
               </div>
+              {pwErr && (
+                <p className="lv-error" role="alert" style={{ marginTop: 12 }}>
+                  <Icon name="alert-circle" size={16} />
+                  <span>{pwErr}</span>
+                </p>
+              )}
               <div style={{ marginTop: 12 }}>
-                <Button variant="secondary" onClick={() => setToast(t(lang, "Password updated"))}>
+                <Button variant="secondary" onClick={submitPassword}>
                   {t(lang, "Update Password")}
                 </Button>
               </div>

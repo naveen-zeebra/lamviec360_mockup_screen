@@ -170,7 +170,7 @@ export default function JobsManageClient() {
                           )}
                           {editable && j.status === "Paused" && (
                             <button role="menuitem" className={menuBtn} onClick={() => act(j.id, (id) => setJobStatus(id, "Published"), "Job resumed")}>
-                              <Icon name="play" size={13} style={{ marginRight: 8 }} /> {t(lang, "Resume")}
+                              <Icon name="play" size={13} style={{ marginRight: 8 }} /> {t(lang, "Resume job")}
                             </button>
                           )}
                           {editable && j.status !== "Closed" && (

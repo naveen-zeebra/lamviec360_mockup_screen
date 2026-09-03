@@ -9,15 +9,28 @@ import StatusBadge from "../../../components/company/StatusBadge";
 import { useLang, t } from "../../../utils/lang";
 import {
   getAuth,
+  getSettings,
   listJobs,
   listCandidates,
   getCandidate,
   setCandidateStage,
   bulkSetCandidateStage,
   addCandidateNote,
+  listRejectionTemplates,
   PIPELINE_STAGES,
   can,
 } from "../../../lib/companyStore";
+
+const SHORTLIST_PLUS = ["Shortlisted", "Interview Scheduled", "Offer Sent", "Hired"];
+
+function maskValue(v, type) {
+  if (!v) return v;
+  if (type === "email") {
+    const [n, d] = v.split("@");
+    return d ? `${n.slice(0, 1)}•••@${d}` : "•••";
+  }
+  return v.length > 4 ? `${"•".repeat(v.length - 3)}${v.slice(-3)}` : "•••";
+}
 
 const SORTS = [
   { value: "date", label: "Application Date" },
@@ -52,6 +65,10 @@ export default function CandidatesClient() {
   const [noteDraft, setNoteDraft] = useState("");
   const [confirmBulk, setConfirmBulk] = useState(null);
   const [undo, setUndo] = useState(null);
+  const [rejectTarget, setRejectTarget] = useState(null);
+  const [rejectReason, setRejectReason] = useState({ templateId: "", note: "" });
+  const [privacy, setPrivacy] = useState({ contactVisibility: "always", maskEmail: false, maskPhone: false });
+  const [templates, setTemplates] = useState([]);
   const [toast, setToast] = useToast();
 
   const refresh = () => setCandidates(listCandidates());
@@ -61,6 +78,8 @@ export default function CandidatesClient() {
     const timer = setTimeout(() => {
       setJobs(listJobs());
       refresh();
+      setPrivacy(getSettings().privacy);
+      setTemplates(listRejectionTemplates());
       setReady(true);
     }, 250);
     return () => clearTimeout(timer);
@@ -90,20 +109,40 @@ export default function CandidatesClient() {
   const jobOf = (id) => jobs.find((j) => j.id === id);
 
   const move = (id, stage) => {
+    if (stage === "Rejected") {
+      setRejectTarget(id);
+      setRejectReason({ templateId: templates[0] ? templates[0].id : "", note: "" });
+      return;
+    }
     setCandidateStage(id, stage);
     refresh();
     setToast(`${t(lang, "Moved to")} ${t(lang, stage)}`);
   };
 
+  const confirmReject = () => {
+    setCandidateStage(rejectTarget, "Rejected", rejectReason);
+    refresh();
+    setRejectTarget(null);
+    setToast(t(lang, "Candidate rejected"));
+  };
+
+  const contactVisible = (candidate) => {
+    if (!candidate) return false;
+    if (privacy.contactVisibility === "never") return false;
+    if (privacy.contactVisibility === "after_shortlist") return SHORTLIST_PLUS.includes(candidate.stage);
+    return true;
+  };
+  const templateTitle = (id) => (templates.find((x) => x.id === id) || {}).title || "";
+
   const toggleSel = (id) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
 
-  const runBulk = (stage) => {
+  const runBulk = (stage, reason) => {
     const prev = {};
     selected.forEach((id) => {
       const c = candidates.find((x) => x.id === id);
       if (c) prev[id] = c.stage;
     });
-    bulkSetCandidateStage(selected, stage);
+    bulkSetCandidateStage(selected, stage, reason);
     refresh();
     setUndo({ ids: [...selected], prev, stage });
     setSelected([]);
@@ -279,11 +318,11 @@ export default function CandidatesClient() {
               <dl className="mb-5 flex flex-col gap-3 [&_div]:flex [&_div]:justify-between [&_div]:gap-4 [&_div]:border-b [&_div]:border-line [&_div]:pb-3 [&_div:last-child]:border-0 [&_div:last-child]:pb-0 [&_dt]:m-0 [&_dt]:text-faint [&_dd]:m-0 [&_dd]:text-right [&_dd]:font-semibold [&_dd]:[overflow-wrap:anywhere]">
                 <div>
                   <dt>{t(lang, "Email")}</dt>
-                  <dd>{open.email}</dd>
+                  <dd>{!contactVisible(open) ? t(lang, "Hidden by policy") : privacy.maskEmail ? maskValue(open.email, "email") : open.email}</dd>
                 </div>
                 <div>
                   <dt>{t(lang, "Phone")}</dt>
-                  <dd>{open.phone}</dd>
+                  <dd>{!contactVisible(open) ? t(lang, "Hidden by policy") : privacy.maskPhone ? maskValue(open.phone, "phone") : open.phone}</dd>
                 </div>
                 <div>
                   <dt>{t(lang, "Experience")}</dt>
@@ -306,6 +345,14 @@ export default function CandidatesClient() {
                   </dd>
                 </div>
               </dl>
+
+              {open.stage === "Rejected" && (open.rejectionTemplateId || open.rejectionNote) && (
+                <div className="mb-5 rounded-md border border-red-100 bg-danger-bg px-3.5 py-3 text-sm text-danger-fg">
+                  <strong className="block">{t(lang, "Rejection reason")}</strong>
+                  {open.rejectionTemplateId && <span>{templateTitle(open.rejectionTemplateId)}</span>}
+                  {open.rejectionNote && <p className="mt-1">{open.rejectionNote}</p>}
+                </div>
+              )}
 
               {manage && (
                 <div className="mb-5">
@@ -375,6 +422,41 @@ export default function CandidatesClient() {
         </div>
       )}
 
+      {rejectTarget && (
+        <div className={OVERLAY} role="dialog" aria-modal="true" aria-label={t(lang, "Reject candidate")}>
+          <div className={MODAL}>
+            <div className={MODAL_HEAD}>
+              <strong className="text-md">{t(lang, "Reject candidate")}</strong>
+              <button className={ICON_BTN} aria-label={t(lang, "Close")} onClick={() => setRejectTarget(null)}>
+                <Icon name="x" size={16} />
+              </button>
+            </div>
+            <p className="mb-3 text-sm text-muted">{t(lang, "Choose a reason. It's recorded on the candidate and used for the rejection email.")}</p>
+            <label className="mb-1.5 block text-sm font-semibold text-ink">{t(lang, "Rejection reason")}</label>
+            <select
+              className={`${STAGE_SELECT} w-full`}
+              value={rejectReason.templateId}
+              onChange={(e) => setRejectReason({ ...rejectReason, templateId: e.target.value })}
+            >
+              <option value="">{t(lang, "No specific reason")}</option>
+              {templates.map((tpl) => (
+                <option key={tpl.id} value={tpl.id}>{tpl.title}</option>
+              ))}
+            </select>
+            <label className="mb-1.5 mt-3 block text-sm font-semibold text-ink">{t(lang, "Internal note (optional)")}</label>
+            <textarea
+              className="min-h-[64px] w-full resize-y rounded-md border-[1.5px] border-line px-3.5 py-[11px] font-body text-sm text-ink focus:border-line-brand focus:outline-none focus:ring-[3px] focus:ring-blue-100"
+              value={rejectReason.note}
+              onChange={(e) => setRejectReason({ ...rejectReason, note: e.target.value })}
+            />
+            <div className={ACTIONS}>
+              <Button variant="secondary" onClick={() => setRejectTarget(null)}>{t(lang, "Cancel")}</Button>
+              <Button variant="danger" onClick={confirmReject}>{t(lang, "Reject candidate")}</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {confirmBulk && (
         <div className={OVERLAY} role="dialog" aria-modal="true" aria-label={t(lang, "Confirm bulk rejection")}>
           <div className={MODAL}>
@@ -403,11 +485,26 @@ export default function CandidatesClient() {
                 <p className={ERRBOX} role="alert">
                   {t(lang, "Final confirmation: reject these candidates. This can be undone within 5 minutes.")}
                 </p>
+                {templates.length > 0 && (
+                  <div className="mt-3">
+                    <label className="mb-1.5 block text-sm font-semibold text-ink">{t(lang, "Rejection reason")}</label>
+                    <select
+                      className={`${STAGE_SELECT} w-full`}
+                      value={confirmBulk.templateId || ""}
+                      onChange={(e) => setConfirmBulk({ ...confirmBulk, templateId: e.target.value })}
+                    >
+                      <option value="">{t(lang, "No specific reason")}</option>
+                      {templates.map((tpl) => (
+                        <option key={tpl.id} value={tpl.id}>{tpl.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div className={ACTIONS}>
                   <Button variant="secondary" onClick={() => setConfirmBulk(null)}>
                     {t(lang, "Cancel")}
                   </Button>
-                  <Button variant="danger" onClick={() => runBulk("Rejected")}>
+                  <Button variant="danger" onClick={() => runBulk("Rejected", { templateId: confirmBulk.templateId || "" })}>
                     {t(lang, "Reject candidates")}
                   </Button>
                 </div>

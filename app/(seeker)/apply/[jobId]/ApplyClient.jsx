@@ -8,16 +8,18 @@ import Stepper from "../../../../components/ds/Stepper";
 import Check from "../../../../components/ds/Check";
 import { useLang, t } from "../../../../utils/lang";
 import { JOBS } from "../../../../lib/data";
-import { getProfile, hasAppliedToJob, addApplication, addNotification } from "../../../../lib/seekerStore";
+import { getProfile, hasAppliedToJob, addApplication, addNotification, saveResume } from "../../../../lib/seekerStore";
 
 const STEP_LABELS = ["Review Profile", "Resume", "Questions", "Additional", "Review", "Consent"];
 const NOTICE_OPTIONS = ["Immediately available", "2 weeks", "1 month", "2 months", "3+ months"];
 const MAX_RESUME_MB = 10;
+const STORE_BYTES = 2 * 1024 * 1024;
 
 export default function ApplyClient({ jobId }) {
   const [lang] = useLang();
   const router = useRouter();
-  const job = JOBS.find((j) => j.id === jobId) || JOBS[0];
+  const job = JOBS.find((j) => j.id === jobId);
+  const draftKey = `lv360-apply-draft-${jobId}`;
   const [profile, setProfile] = useState(null);
   const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [step, setStep] = useState(1);
@@ -28,17 +30,55 @@ export default function ApplyClient({ jobId }) {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState(null);
   const [err, setErr] = useState("");
+  const [draftSaved, setDraftSaved] = useState(false);
 
   useEffect(() => {
+    if (!job) return;
     const p = getProfile();
     setProfile(p);
     setResumeFileName(p.resume.fileName);
     setAlreadyApplied(hasAppliedToJob(jobId));
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d.answers) setAnswers(d.answers);
+        if (d.coverLetter) setCoverLetter(d.coverLetter);
+        if (d.step) setStep(d.step);
+        setDraftSaved(true);
+      }
+    } catch (e) {}
   }, [jobId]);
+
+  if (!job) {
+    return (
+      <div className="lv-page-container">
+        <div className="lv-empty">
+          <h3>{t(lang, "Job not found")}</h3>
+          <p>{t(lang, "This job may have been removed or the link is out of date.")}</p>
+          <div style={{ marginTop: 20 }}>
+            <Link href="/jobs"><Button variant="secondary">{t(lang, "Browse jobs")}</Button></Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!profile) return null;
 
   const titleText = lang === "VN" || lang === "VI" ? job.titleVi : job.title;
+
+  const saveDraft = () => {
+    try {
+      localStorage.setItem(draftKey, JSON.stringify({ answers, coverLetter, step }));
+      setDraftSaved(true);
+    } catch (e) {}
+  };
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem(draftKey);
+    } catch (e) {}
+  };
 
   if (alreadyApplied && !result) {
     return (
@@ -109,21 +149,54 @@ export default function ApplyClient({ jobId }) {
     );
   }
 
+  const validateStep = () => {
+    if (step === 1 && !profile.personal.fullName.trim()) return t(lang, "Add your full name in Profile settings before applying.");
+    if (step === 2 && !resumeFileName) return t(lang, "Please add a résumé before continuing.");
+    if (step === 3 && !answers.noticePeriod) return t(lang, "Please answer the notice period question.");
+    if (step === 3 && !answers.whyFit.trim()) return t(lang, "Please tell the employer why you're a good fit.");
+    return "";
+  };
+
   const goNext = () => {
+    const msg = validateStep();
+    if (msg) {
+      setErr(msg);
+      return;
+    }
     setErr("");
+    saveDraft();
     setStep((s) => Math.min(6, s + 1));
   };
-  const goBack = () => setStep((s) => Math.max(1, s - 1));
+  const goBack = () => {
+    setErr("");
+    setStep((s) => Math.max(1, s - 1));
+  };
 
   const onResumeChange = (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
+    const ext = (file.name.split(".").pop() || "").toLowerCase();
+    if (!["pdf", "doc", "docx", "jpg", "jpeg", "png"].includes(ext)) {
+      setErr(t(lang, "Use a PDF, DOC, DOCX, JPG or PNG file."));
+      return;
+    }
     if (file.size > MAX_RESUME_MB * 1024 * 1024) {
       setErr(t(lang, "File is larger than 10MB."));
       return;
     }
     setErr("");
-    setResumeFileName(file.name);
+    const persist = (dataUrl) => {
+      saveResume({ fileName: file.name, size: file.size, type: file.type, dataUrl: dataUrl || "" });
+      setResumeFileName(file.name);
+    };
+    if (file.size <= STORE_BYTES) {
+      const reader = new FileReader();
+      reader.onload = () => persist(reader.result);
+      reader.onerror = () => persist("");
+      reader.readAsDataURL(file);
+    } else {
+      persist("");
+    }
   };
 
   const submit = () => {
@@ -131,7 +204,13 @@ export default function ApplyClient({ jobId }) {
     setSubmitting(true);
     setTimeout(() => {
       const record = addApplication({ jobId: job.id, resumeFileName, coverLetter, answers });
-      addNotification({ type: "confirmation", title: t(lang, "Application submitted"), message: `${t(lang, "Your application for")} ${titleText} ${t(lang, "was received.")}` });
+      addNotification({
+        type: "confirmation",
+        title: t(lang, "Application submitted"),
+        message: `${t(lang, "Your application for")} ${titleText} ${t(lang, "was received.")}`,
+        applicationId: record.id,
+      });
+      clearDraft();
       setResult(record);
       setSubmitting(false);
     }, 900);
@@ -144,6 +223,12 @@ export default function ApplyClient({ jobId }) {
         <p>{job.company} · {lang === "VN" || lang === "VI" ? job.locationVi : job.location}</p>
       </div>
       <Stepper steps={STEP_LABELS.map((l) => t(lang, l))} current={step} />
+
+      {draftSaved && step < 6 && (
+        <p style={{ fontSize: 12, color: "var(--text-tertiary)", margin: "12px 0 -4px", display: "flex", alignItems: "center", gap: 6 }}>
+          <Icon name="save" size={13} /> {t(lang, "Your progress is saved on this device.")}
+        </p>
+      )}
 
       <div className="lv-onboard-card">
         {step === 1 && (
@@ -172,7 +257,7 @@ export default function ApplyClient({ jobId }) {
                 <dd>{profile.professional.skills.join(", ") || "—"}</dd>
               </div>
             </dl>
-            <Link href="/settings" className="lv-job-view" style={{ marginTop: 16, display: "inline-flex" }}>
+            <Link href="/settings?tab=profile" className="lv-job-view" style={{ marginTop: 16, display: "inline-flex" }}>
               {t(lang, "Edit in Profile Settings")} <Icon name="arrow-right" size={14} />
             </Link>
           </div>
@@ -274,6 +359,18 @@ export default function ApplyClient({ jobId }) {
           {step > 1 && (
             <Button type="button" variant="secondary" onClick={goBack} disabled={submitting}>
               {t(lang, "Back")}
+            </Button>
+          )}
+          {step < 6 && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => {
+                saveDraft();
+                router.push("/jobs");
+              }}
+            >
+              {t(lang, "Save & exit")}
             </Button>
           )}
           {step < 6 ? (
