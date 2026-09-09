@@ -141,15 +141,15 @@ pipeline {
                         echo "DEPLOYING TO SERVER"
                         echo "=========================================="
 
+                        ssh -o StrictHostKeyChecking=no ${DEPLOY_USER}@${DEPLOY_HOST} "mkdir -p ${REMOTE_PROJECT_DIR}"
+
+                        scp -o StrictHostKeyChecking=no docker-compose.yml .env.dev ${DEPLOY_USER}@${DEPLOY_HOST}:${REMOTE_PROJECT_DIR}/
+
                         ssh \
                             -o StrictHostKeyChecking=no \
                             ${DEPLOY_USER}@${DEPLOY_HOST} << ENDSSH
 
                             set -e
-
-                            echo "Server: ${DEPLOY_HOST}"
-
-                            mkdir -p ${REMOTE_PROJECT_DIR}
 
                             cd ${REMOTE_PROJECT_DIR}
 
