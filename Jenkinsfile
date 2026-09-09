@@ -30,9 +30,7 @@ pipeline {
         SSH_CREDENTIALS = 'ssh-dev-server'
 
         REMOTE_PROJECT_DIR = '/opt/sampledev'
-g'
-
-        APP_PORT = '403`0'
+        APP_PORT = '4030'
         CONTAINER_NAME = 'lv360_sampledev_frontend'
     }
 
