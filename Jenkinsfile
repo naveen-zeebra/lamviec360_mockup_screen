@@ -29,10 +29,11 @@ pipeline {
         DEPLOY_USER = 'deploy'
         SSH_CREDENTIALS = 'ssh-dev-server'
 
-        REMOTE_PROJECT_DIR = '/opt/jobseeker-landing'
+        REMOTE_PROJECT_DIR = '/opt/sampledev'
+g'
 
-        APP_PORT = '4028'
-        CONTAINER_NAME = 'lv360_jobseeker_landing'
+        APP_PORT = '403`0'
+        CONTAINER_NAME = 'lv360_sampledev_frontend'
     }
 
     stages {
