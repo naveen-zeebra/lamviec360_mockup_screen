@@ -49,7 +49,7 @@ g'
 
                 sh '''
                     echo "=========================================="
-                    echo "JOB SEEKER LANDING"
+                    echo "SAMPLE WEB APP LANDING"
                     echo "=========================================="
 
                     echo "Commit:"
